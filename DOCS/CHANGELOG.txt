@@ -1,3 +1,7 @@
+0.2.0.el7 - November 19, 2016
+
+- Corrected entries regarding VPNaaS Neutron agent.
+
 0.1.0.el7 - November 11, 2016
 
 - First beta version of our openstack Installer for OpenStack 

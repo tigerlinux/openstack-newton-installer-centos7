@@ -1,5 +1,5 @@
 Installer Version:
 
-0.1.0.el7 "Flying Tiger"
+0.2.0.el7 "Flying Tiger"
 
 ONLY FOR OPENSTACK RELEASE 14 "NEWTON"
