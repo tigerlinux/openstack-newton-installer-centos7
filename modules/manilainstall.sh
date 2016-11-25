@@ -99,7 +99,7 @@ echo ""
 echo "Installing Manila Packages"
 
 yum -y install openstack-manila python-manilaclient openstack-manila-doc \
-	openstack-manila-share openstack-manila-ui python-manila python-manilaclient
+	openstack-manila-share python-manila python-manilaclient
 
 echo "Done"
 echo ""
@@ -119,7 +119,6 @@ echo "#" >> /etc/manila/manila.conf
 # Logs:
 
 crudini --set /etc/manila/manila.conf DEFAULT debug false
-# crudini --set /etc/manila/manila.conf DEFAULT verbose false
 
 #
 # Database flavor configuration based on our selection inside the installer main config file

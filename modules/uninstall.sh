@@ -103,6 +103,7 @@ yum -y erase qpid-cpp-server qpid-cpp-server-ssl qpid-cpp-client cyrus-sasl cyru
 yum -y erase rabbitmq-server
 yum -y erase bind
 rm -rf /var/named
+yum -y erase strongswan strongswan-libipsec strongswan-charon-nm strongswan-tnc-imcvs
 
 #
 # And clean up swift devices if we decided to do it in oir config file

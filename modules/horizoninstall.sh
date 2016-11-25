@@ -66,6 +66,26 @@ echo "Installing Horizon Packages"
 
 yum install -y memcached python-memcached openstack-dashboard httpd
 
+if [ troveinstall == "yes" ]
+then
+	yum install -y openstack-trove-ui
+fi
+
+if [ saharainstall == "yes" ]
+then
+	yum install -y openstack-sahara-ui
+fi
+
+if [ manilainstall == "yes" ]
+then
+	yum install -y openstack-manila-ui
+fi
+
+if [ neutroninstall == "yes" ]
+then
+	yum install -y openstack-neutron-lbaas-ui
+fi
+
 echo ""
 echo "Done"
 echo ""
@@ -115,6 +135,7 @@ echo "" >> /etc/openstack-dashboard/local_settings
 if [ $horizondbusage == "yes" ]
 then
         echo "" >> /etc/openstack-dashboard/local_settings
+	echo "SESSION_ENGINE = 'django.contrib.sessions.backends.db'" >> /etc/openstack-dashboard/local_settings
         echo "CACHES = {" >> /etc/openstack-dashboard/local_settings
         echo "    'default': {" >> /etc/openstack-dashboard/local_settings
         echo "        'BACKEND': 'django.core.cache.backends.db.DatabaseCache'," >> /etc/openstack-dashboard/local_settings
@@ -157,6 +178,7 @@ then
 	sleep 5
 else
 	echo "" >> /etc/openstack-dashboard/local_settings
+	echo echo "SESSION_ENGINE = 'django.contrib.sessions.backends.cache'" >> /etc/openstack-dashboard/local_settings
 	echo "CACHES = {" >> /etc/openstack-dashboard/local_settings
 	echo "    'default': {" >> /etc/openstack-dashboard/local_settings
 	echo "        'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache'," >> /etc/openstack-dashboard/local_settings
@@ -221,7 +243,6 @@ yum -y reinstall python2-XStatic-roboto-fontface roboto-fontface-common roboto-f
 
 if [ ! -f /usr/share/openstack-dashboard/static/horizon/lib/roboto_fontface/fonts/Roboto-Regular.woff ]
 then
-	# ln -s /usr/share/fonts/roboto_fontface /usr/share/openstack-dashboard/static/horizon/lib/roboto_fontface/fonts
 	mkdir -p /usr/share/openstack-dashboard/static/horizon/lib/roboto_fontface/fonts
 	mkdir -p /usr/share/openstack-dashboard/openstack_dashboard/static/horizon/lib/font-awesome/fonts
 	mkdir -p /usr/share/openstack-dashboard/openstack_dashboard/static/horizon/lib/roboto_fontface/fonts
@@ -231,7 +252,6 @@ fi
 
 if [ ! -f /usr/share/openstack-dashboard/static/horizon/lib/mdi/fonts/materialdesignicons-webfont.woff ]
 then
-	# ln -s /usr/share/fonts/mdi /usr/share/openstack-dashboard/static/horizon/lib/mdi/fonts
 	mkdir -p /usr/share/openstack-dashboard/static/horizon/lib/mdi/fonts
 	mkdir -p /usr/share/openstack-dashboard/openstack_dashboard/static/horizon/lib/mdi/fonts
 	cp -v /usr/share/fonts/mdi/* /usr/share/openstack-dashboard/openstack_dashboard/static/horizon/lib/mdi/fonts/

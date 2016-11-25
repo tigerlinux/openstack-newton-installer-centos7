@@ -5,8 +5,8 @@
 # E-Mail: TigerLinux@Gmail.com
 #
 # Main Configuration
-# Version: 0.2.0.el7 "Flying Tiger"
-# November 19, 2016
+# Version: 1.0.0.el7 "Flying Tiger"
+# November 25, 2016
 #
 
 #
@@ -748,7 +748,7 @@ manilainstall="no"
 manilahost="192.168.56.60"
 # Again, change the password and e-mail
 manilauser="manila"
-manilasvcev1="manilav1"
+manilasvcev1="manila"
 manilasvcev2="manilav2"
 manilapass="P@ssw0rd"
 manilaemail="manila@localhost"

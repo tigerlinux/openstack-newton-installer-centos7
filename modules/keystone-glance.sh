@@ -44,7 +44,7 @@ else
 	exit 0
 fi
 
-if [ -f /etc/openstack-control-script-config/keystone-extra-idents ]
+if [ -f /etc/openstack-control-script-config/keystone-extra-idents-glance ]
 then
 	echo ""
 	echo "This module was already completed. Exiting"
@@ -81,6 +81,8 @@ openstack endpoint create --region $endpointsregion \
 
 openstack endpoint create --region $endpointsregion \
 	image admin http://$glancehost:9292
+
+date > /etc/openstack-control-script-config/keystone-extra-idents-glance
 
 echo ""
 echo "GLANCE Identities DONE"

@@ -111,7 +111,6 @@ ln -f -s /etc/neutron/plugins/ml2/ml2_conf.ini /etc/neutron/plugin.ini
 # ensure that Centos 7 Neutron will use ML2 plugin. Otherwise, Neutron will fail.
 #
 
-# sed -i 's,plugins/openvswitch/ovs_neutron_plugin.ini,plugin.ini,g' /usr/lib/systemd/system/neutron-openvswitch-agent.service
 sed -i 's,plugins/ml2/openvswitch_agent.ini,plugin.ini,g' /usr/lib/systemd/system/neutron-openvswitch-agent.service
 
 # NOTE: Also, it can happen that after an yum update the file gets overwritten inducing the same bug. The following step
@@ -205,7 +204,6 @@ echo "#" >> /etc/neutron/neutron.conf
 #
 
 crudini --set /etc/neutron/neutron.conf DEFAULT debug False
-# crudini --set /etc/neutron/neutron.conf DEFAULT verbose False
 crudini --set /etc/neutron/neutron.conf DEFAULT log_dir /var/log/neutron
 crudini --set /etc/neutron/neutron.conf DEFAULT bind_host 0.0.0.0
 crudini --set /etc/neutron/neutron.conf DEFAULT bind_port 9696
@@ -276,10 +274,6 @@ nova_admin_tenant_id=`openstack project show $keystoneservicestenant|grep id|awk
 crudini --set /etc/neutron/neutron.conf DEFAULT notify_nova_on_port_status_changes True
 crudini --set /etc/neutron/neutron.conf DEFAULT notify_nova_on_port_data_changes True
 crudini --set /etc/neutron/neutron.conf DEFAULT nova_url http://$novahost:8774/v2.1
-# crudini --set /etc/neutron/neutron.conf DEFAULT nova_admin_username $novauser
-# crudini --set /etc/neutron/neutron.conf DEFAULT nova_admin_tenant_id $nova_admin_tenant_id
-# crudini --set /etc/neutron/neutron.conf DEFAULT nova_admin_password $novapass
-# crudini --set /etc/neutron/neutron.conf DEFAULT nova_admin_auth_url http://$keystonehost:35357/v3
 crudini --set /etc/neutron/neutron.conf DEFAULT report_interval 20
 crudini --set /etc/neutron/neutron.conf DEFAULT notification_driver neutron.openstack.common.notifier.rpc_notifier
 
@@ -312,10 +306,8 @@ fi
  
 if [ $vpnaasinstall == "yes" ]
 then
-	# crudini --set /etc/neutron/neutron.conf DEFAULT service_plugins "router,firewall,lbaas,vpnaas$thirdplugin"
 	crudini --set /etc/neutron/neutron.conf DEFAULT service_plugins "router,firewall,neutron_lbaas.services.loadbalancer.plugin.LoadBalancerPluginv2,vpnaas$thirdplugin"
 else
-	# crudini --set /etc/neutron/neutron.conf DEFAULT service_plugins "router,firewall,lbaas$thirdplugin"
 	crudini --set /etc/neutron/neutron.conf DEFAULT service_plugins "router,firewall,neutron_lbaas.services.loadbalancer.plugin.LoadBalancerPluginv2$thirdplugin"
 fi
 
@@ -337,10 +329,8 @@ then
 	crudini --set /etc/neutron/vpn_agent.ini DEFAULT ovs_use_veth True
 	crudini --set /etc/neutron/vpn_agent.ini DEFAULT use_namespaces True
 	crudini --set /etc/neutron/vpn_agent.ini DEFAULT external_network_bridge ""
-	#crudini --set /etc/neutron/vpn_agent.ini vpnagent vpn_device_driver "neutron_vpnaas.services.vpn.device_drivers.ipsec.OpenSwanDriver"
 	crudini --set /etc/neutron/vpn_agent.ini vpnagent vpn_device_driver "neutron_vpnaas.services.vpn.device_drivers.strongswan_ipsec.StrongSwanDriver"
 	crudini --set /etc/neutron/vpn_agent.ini ipsec ipsec_status_check_interval 60
-	#crudini --set /etc/neutron/neutron_vpnaas.conf service_providers service_provider "VPN:openswan_vpnaas:neutron.services.vpn.service_drivers.ipsec.IPsecVPNDriver:default"
 	crudini --set /etc/neutron/neutron_vpnaas.conf service_providers service_provider "VPN:strongswan:neutron_vpnaas.services.vpn.service_drivers.ipsec.IPsecVPNDriver:default"
 	ln -s /etc/strongswan/strongswan.d /etc/strongswan.d
 fi
@@ -545,11 +535,10 @@ echo "#" >> /etc/neutron/lbaas_agent.ini
 echo "#" >> /etc/neutron/neutron_lbaas.conf
 echo "#" >> /etc/neutron/services_lbaas.conf
 
-# Old v1 lbaas entries keep... just in case
+# Old v1 lbaas entries keept... just in case
 crudini --set /etc/neutron/lbaas_agent.ini DEFAULT periodic_interval 10
 crudini --set /etc/neutron/lbaas_agent.ini DEFAULT interface_driver neutron.agent.linux.interface.OVSInterfaceDriver
 crudini --set /etc/neutron/lbaas_agent.ini DEFAULT ovs_use_veth True
-# crudini --set /etc/neutron/lbaas_agent.ini DEFAULT device_driver neutron.services.loadbalancer.drivers.haproxy.namespace_driver.HaproxyNSDriver
 crudini --set /etc/neutron/lbaas_agent.ini DEFAULT device_driver neutron_lbaas.drivers.haproxy.namespace_driver.HaproxyNSDriver
 crudini --set /etc/neutron/lbaas_agent.ini DEFAULT use_namespaces True
 crudini --set /etc/neutron/lbaas_agent.ini haproxy user_group neutron
@@ -562,8 +551,6 @@ crudini --del /etc/neutron/neutron_lbaas.conf service_providers service_provider
 crudini --del /etc/neutron/neutron_lbaas.conf service_providers service_provider
 crudini --del /etc/neutron/neutron_lbaas.conf service_providers service_provider
 
-# Old V1 lbaas commented for good !!
-# crudini --set /etc/neutron/neutron_lbaas.conf service_providers service_provider "LOADBALANCER:Haproxy:neutron_lbaas.services.loadbalancer.drivers.haproxy.plugin_driver.HaproxyOnHostPluginDriver:default"
 # New V2 lbaas
 crudini --set /etc/neutron/neutron_lbaas.conf service_providers service_provider "LOADBALANCERV2:Haproxy:neutron_lbaas.drivers.haproxy.plugin_driver.HaproxyOnHostPluginDriver:default"
 
@@ -620,7 +607,6 @@ sync
 # New from Newton
 crudini --set /etc/neutron/neutron.conf DEFAULT transport_url rabbit://$brokeruser:$brokerpass@$messagebrokerhost:5672/$brokervhost
 crudini --set /etc/neutron/neutron.conf DEFAULT rpc_backend neutron.openstack.common.rpc.impl_kombu
-# crudini --set /etc/neutron/neutron.conf DEFAULT rpc_backend rabbit
 crudini --set /etc/neutron/neutron.conf DEFAULT notification_driver messagingv2
 crudini --set /etc/neutron/neutron.conf oslo_messaging_rabbit rabbit_host $messagebrokerhost
 crudini --set /etc/neutron/neutron.conf oslo_messaging_rabbit rabbit_password $brokerpass

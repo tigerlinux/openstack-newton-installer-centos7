@@ -44,7 +44,7 @@ else
 	exit 0
 fi
 
-if [ -f /etc/openstack-control-script-config/keystone-extra-idents ]
+if [ -f /etc/openstack-control-script-config/keystone-extra-idents-designate ]
 then
 	echo ""
 	echo "This module was already completed. Exiting !"
@@ -95,6 +95,7 @@ openstack endpoint create --region $endpointsregion \
 openstack endpoint create --region $endpointsregion \
 	dnsv2 admin http://$designatehost:9001
 
+date > /etc/openstack-control-script-config/keystone-extra-idents-designate
 
 echo "Ready"
 

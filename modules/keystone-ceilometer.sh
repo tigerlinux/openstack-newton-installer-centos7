@@ -44,7 +44,7 @@ else
 	exit 0
 fi
 
-if [ -f /etc/openstack-control-script-config/keystone-extra-idents ]
+if [ -f /etc/openstack-control-script-config/keystone-extra-idents-ceilometer ]
 then
 	echo ""
 	echo "This module was already completed. Exiting"
@@ -110,6 +110,8 @@ then
 	openstack endpoint create --region $endpointsregion \
 		alarming admin http://$ceilometerhost:8042
 fi
+
+date > /etc/openstack-control-script-config/keystone-extra-idents-ceilometer
 
 echo "Done"
 

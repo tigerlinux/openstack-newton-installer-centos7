@@ -44,7 +44,7 @@ else
 	exit 0
 fi
 
-if [ -f /etc/openstack-control-script-config/keystone-extra-idents ]
+if [ -f /etc/openstack-control-script-config/keystone-extra-idents-cinder ]
 then
 	echo ""
 	echo "This module was already completed. Exiting !"
@@ -96,6 +96,8 @@ openstack endpoint create --region $endpointsregion \
 
 openstack endpoint create --region $endpointsregion \
 	volumev2 admin http://$cinderhost:8776/v2/%\(tenant_id\)s
+
+date > /etc/openstack-control-script-config/keystone-extra-idents-cinder
 
 echo "Ready"
 

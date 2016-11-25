@@ -112,7 +112,6 @@ esac
 #
 
 crudini --set /etc/sahara/sahara.conf DEFAULT debug false
-# crudini --set /etc/sahara/sahara.conf DEFAULT verbose false
 crudini --set /etc/sahara/sahara.conf DEFAULT log_dir /var/log/sahara
 crudini --set /etc/sahara/sahara.conf DEFAULT log_file sahara.log
 crudini --set /etc/sahara/sahara.conf DEFAULT host $saharahost

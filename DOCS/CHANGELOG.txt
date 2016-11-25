@@ -1,3 +1,14 @@
+1.0.0.el7 - November 25, 2016
+
+- First non-beta release version for our Newton installer.
+- Added important information about an aparent bug in horizon
+  and it's workaround when manila and/or designate are installed.
+- Removed some old deprecated options (but not yet the ones
+  related to the messabroker.. that's on purpose).
+- Added some extra intelligence to the scripts which creates
+  identity items for openstack components (nova, cinder, etc.).
+- General cleaning on almost all scripts.
+
 0.2.0.el7 - November 19, 2016
 
 - Corrected entries regarding VPNaaS Neutron agent.

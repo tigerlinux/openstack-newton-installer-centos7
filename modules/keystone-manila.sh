@@ -44,7 +44,7 @@ else
 	exit 0
 fi
 
-if [ -f /etc/openstack-control-script-config/keystone-extra-idents ]
+if [ -f /etc/openstack-control-script-config/keystone-extra-idents-manila ]
 then
 	echo ""
 	echo "This module was already completed. Exiting !"
@@ -66,35 +66,36 @@ openstack role add --project $keystoneservicestenant --user $manilauser $keyston
 
 echo "Manila Services V1 and V2:"
 openstack service create \
-	--name $manilasvcev1 \
-	--description "OpenStack Shared File Systems V1" \
-	share
+        --name $manilasvcev1 \
+        --description "OpenStack Shared File Systems" \
+        share
 
 openstack service create \
-	--name $manilasvcev2 \
-	--description "OpenStack Shared File Systems V2" \
-	sharev2
+        --name $manilasvcev2 \
+        --description "OpenStack Shared File Systems" \
+        sharev2
 
 echo "Manila Endpoints:"
 
 openstack endpoint create --region $endpointsregion \
-	share public http://$manilahost:8786/v1/%\(tenant_id\)s
+        share public http://$manilahost:8786/v1/%\(tenant_id\)s
 
 openstack endpoint create --region $endpointsregion \
-	share internal http://$manilahost:8786/v1/%\(tenant_id\)s
+        share internal http://$manilahost:8786/v1/%\(tenant_id\)s
 
 openstack endpoint create --region $endpointsregion \
-	share admin http://$manilahost:8786/v1/%\(tenant_id\)s
+        share admin http://$manilahost:8786/v1/%\(tenant_id\)s
 
 openstack endpoint create --region $endpointsregion \
-	sharev2 public http://$manilahost:8786/v2/%\(tenant_id\)s
+        sharev2 public http://$manilahost:8786/v2/%\(tenant_id\)s
 
 openstack endpoint create --region $endpointsregion \
-	sharev2 internal http://$manilahost:8786/v2/%\(tenant_id\)s
+        sharev2 internal http://$manilahost:8786/v2/%\(tenant_id\)s
 
 openstack endpoint create --region $endpointsregion \
-	sharev2 admin http://$manilahost:8786/v2/%\(tenant_id\)s
+        sharev2 admin http://$manilahost:8786/v2/%\(tenant_id\)s
 
+date > /etc/openstack-control-script-config/keystone-extra-idents-manila
 
 echo "Ready"
 

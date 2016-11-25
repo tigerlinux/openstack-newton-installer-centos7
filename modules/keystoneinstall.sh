@@ -51,7 +51,7 @@ fi
 
 if [ $keystoneinstall == "no" ]
 then
-	# OS_URL="http://$keystonehost:35357/v3"
+	OS_URL="http://$keystonehost:35357/v3"
 	OS_USERNAME=$keystoneadminuser
 	OS_TENANT_NAME=$keystoneadminuser
 	OS_PROJECT_NAME=$keystoneadminuser
@@ -62,11 +62,8 @@ then
 	OS_USER_DOMAIN_NAME=$keystonedomain
 	OS_IDENTITY_API_VERSION=3
 
-	# echo "# export OS_URL=$SERVICE_ENDPOINT" > $keystone_admin_rc_file
-	# echo "# export OS_TOKEN=$SERVICE_TOKEN" >> $keystone_admin_rc_file
 	echo "export OS_USERNAME=$OS_USERNAME" >> $keystone_admin_rc_file
 	echo "export OS_PASSWORD=$OS_PASSWORD" >> $keystone_admin_rc_file
-	# echo "export OS_TENANT_NAME=$OS_TENANT_NAME" >> $keystone_admin_rc_file
 	echo "export OS_PROJECT_NAME=$OS_TENANT_NAME" >> $keystone_admin_rc_file
 	echo "export OS_AUTH_URL=$OS_AUTH_URL" >> $keystone_admin_rc_file
 	echo "export OS_VOLUME_API_VERSION=2" >> $keystone_admin_rc_file
@@ -77,11 +74,8 @@ then
 
 	OS_AUTH_URL_FULLADMIN="http://$keystonehost:35357/v3"
 
-	# echo "# export OS_URL=$SERVICE_ENDPOINT" > $keystone_fulladmin_rc_file
-	# echo "# export OS_TOKEN=$SERVICE_TOKEN" >> $keystone_fulladmin_rc_file
 	echo "export OS_USERNAME=$OS_USERNAME" >> $keystone_fulladmin_rc_file
 	echo "export OS_PASSWORD=$OS_PASSWORD" >> $keystone_fulladmin_rc_file
-	# echo "export OS_TENANT_NAME=$OS_TENANT_NAME" >> $keystone_fulladmin_rc_file
 	echo "export OS_PROJECT_NAME=$OS_TENANT_NAME" >> $keystone_fulladmin_rc_file
 	echo "export OS_AUTH_URL=$OS_AUTH_URL_FULLADMIN" >> $keystone_fulladmin_rc_file
 	echo "export OS_VOLUME_API_VERSION=2" >> $keystone_fulladmin_rc_file
@@ -94,6 +88,7 @@ then
 	date > /etc/openstack-control-script-config/keystone-installed
 	date > /etc/openstack-control-script-config/keystone-extra-idents
 
+	echo ""
 	exit 0
 fi
 
@@ -117,14 +112,6 @@ systemctl start memcached.service
 
 echo "Done"
 
-#
-# We export Keystone "admin service token", defined in our main configutation file at ./configs directory
-#
-
-# echo $SERVICE_TOKEN > /root/ks_admin_token
-# export OS_TOKEN=$SERVICE_TOKEN
-
-
 echo ""
 echo "Configuring Keystone"
 
@@ -136,10 +123,8 @@ sync
 # Using pyhton based "ini" configuration tools, we begin Keystone configuration
 #
 
-# crudini --set /etc/keystone/keystone.conf DEFAULT admin_token $SERVICE_TOKEN
 crudini --set /etc/keystone/keystone.conf DEFAULT compute_port 8774
 crudini --set /etc/keystone/keystone.conf DEFAULT debug False
-# crudini --set /etc/keystone/keystone.conf DEFAULT verbose False
 crudini --set /etc/keystone/keystone.conf DEFAULT log_file /var/log/keystone/keystone.log
 crudini --set /etc/keystone/keystone.conf DEFAULT use_syslog False
 crudini --set /etc/keystone/keystone.conf memcache servers $keystonehost:11211
@@ -185,11 +170,9 @@ case $keystonetokenflavor in
 	chown -R keystone:keystone /var/log/keystone
 	keystone-manage pki_setup --keystone-user keystone --keystone-group keystone
 	chown -R keystone:keystone /var/log/keystone /etc/keystone/ssl
-	# crudini --set /etc/keystone/keystone.conf token provider keystone.token.providers.pki.Provider
 	crudini --set /etc/keystone/keystone.conf token provider pki
 	;;
 "uuid")
-	# crudini --set /etc/keystone/keystone.conf token provider keystone.token.providers.uuid.Provider
 	crudini --set /etc/keystone/keystone.conf token provider uuid
 	;;
 esac
@@ -228,7 +211,6 @@ systemctl disable openstack-keystone.service
 systemctl start memcached.service
 systemctl enable memcached.service
 
-# cp -v ./libs/keystone/wsgi-keystone.conf /etc/httpd/conf.d/
 ln -s /usr/share/keystone/wsgi-keystone.conf /etc/httpd/conf.d/
 
 #
@@ -269,44 +251,8 @@ sync
 echo ""
 
 #
-# Here is where the most important part of OpenStack Cloud deployment starts. If there is no identity service
-# with properlly configured users, services, roles, endpoints, etc., then no OpenStack service will be able
-# to function.
+# Time to bootstrap Keystone !!
 #
-# First, we'll create Keystone identities, then the entities for all OpenStack services we are required to
-# install
-#
-
-# echo "Creating Keystone Service Endpoints"
-# export OS_URL="http://$keystonehost:35357/v3"
-# export OS_TOKEN=$SERVICE_TOKEN
-# export OS_IDENTITY_API_VERSION=3
-
-# openstack service create \
-#         --name $keystoneservicename \
-#         --description="Keystone Identity Service" \
-#         identity
-
-
-# sync
-# sleep 5
-# sync
-
-# echo "Creating endpoint V 3"
-
-
-# openstack endpoint create --region $endpointsregion \
-# 	identity public http://$keystonehost:5000/v3
-
-# openstack endpoint create --region $endpointsregion \
-# 	identity internal http://$keystonehost:5000/v3
-
-# openstack endpoint create --region $endpointsregion \
-#	identity admin http://$keystonehost:35357/v3
-
-# sync
-# sleep 5
-# sync
 
 keystone-manage bootstrap \
 	--bootstrap-password $keystoneadminpass \
@@ -332,60 +278,37 @@ OS_IDENTITY_API_VERSION=3
 
 echo "export OS_USERNAME=$OS_USERNAME" >> $keystone_admin_rc_file
 echo "export OS_PASSWORD=$OS_PASSWORD" >> $keystone_admin_rc_file
-# echo "export OS_TENANT_NAME=$OS_TENANT_NAME" >> $keystone_admin_rc_file
 echo "export OS_PROJECT_NAME=$OS_TENANT_NAME" >> $keystone_admin_rc_file
 echo "export OS_AUTH_URL=$OS_AUTH_URL" >> $keystone_admin_rc_file
 echo "export OS_VOLUME_API_VERSION=2" >> $keystone_admin_rc_file
 echo "export OS_IDENTITY_API_VERSION=3" >> $keystone_admin_rc_file
 echo "export OS_PROJECT_DOMAIN_NAME=$keystonedomain" >> $keystone_admin_rc_file
 echo "export OS_USER_DOMAIN_NAME=$keystonedomain" >> $keystone_admin_rc_file
-# echo "export OS_AUTH_VERSION=3" >> $keystone_admin_rc_file
 echo "PS1='[\u@\h \W(keystone_admin)]\$ '" >> $keystone_admin_rc_file
 
 OS_AUTH_URL_FULLADMIN="http://$keystonehost:35357/v3"
 
 echo "export OS_USERNAME=$OS_USERNAME" >> $keystone_fulladmin_rc_file
 echo "export OS_PASSWORD=$OS_PASSWORD" >> $keystone_fulladmin_rc_file
-# echo "export OS_TENANT_NAME=$OS_TENANT_NAME" >> $keystone_fulladmin_rc_file
 echo "export OS_PROJECT_NAME=$OS_TENANT_NAME" >> $keystone_fulladmin_rc_file
 echo "export OS_AUTH_URL=$OS_AUTH_URL_FULLADMIN" >> $keystone_fulladmin_rc_file
 echo "export OS_VOLUME_API_VERSION=2" >> $keystone_fulladmin_rc_file
 echo "export OS_IDENTITY_API_VERSION=3" >> $keystone_fulladmin_rc_file
 echo "export OS_PROJECT_DOMAIN_NAME=$keystonedomain" >> $keystone_fulladmin_rc_file
 echo "export OS_USER_DOMAIN_NAME=$keystonedomain" >> $keystone_fulladmin_rc_file
-# echo "export OS_AUTH_VERSION=3" >> $keystone_fulladmin_rc_file
 echo "PS1='[\u@\h \W(keystone_fulladmin)]\$ '" >> $keystone_fulladmin_rc_file
 
 #
 # Then we source the file, as we are goint to use it from now on
 #
 
-# source $keystone_admin_rc_file
 source $keystone_fulladmin_rc_file
-
-
-# echo ""
-# echo "Creating Keystone Default Domain"
-# 
-# openstack domain create --description "Default Domain" $keystonedomain
 
 echo ""
 
 sync
 sleep 5
 sync
-
-# echo "Creating Admin Project: $keystoneadminuser"
-# openstack project create --domain $keystonedomain --description "Admin Project" $keystoneadminuser
-
-# echo "Creating Admin User: $keystoneadminuser"
-# openstack user create --domain $keystonedomain --password $keystoneadminpass --email $keystoneadminuseremail $keystoneadminuser
-
-# echo "Creating Admin Role: $keystoneadminuser"
-# openstack role create $keystoneadminuser
-
-# echo "Adding Admin role to $keystoneadminuser User in $keystoneadminuser Project"
-# openstack role add --project $keystoneadminuser --user $keystoneadminuser $keystoneadminuser
 
 echo "Creating Services Project: $keystoneservicestenant"
 openstack project create --domain $keystonedomain --description "Service Project" $keystoneservicestenant
@@ -561,6 +484,9 @@ sleep 5
 
 if [ $lockadmintokenauth == "yes" ]
 then
+	#
+	# From NEWTON there is a new method for Keystone bootstrapping, so this seems to be redundant now !
+	#
 	#echo ""
 	#echo "Locking out admin token from Keystone"
 	#crudini --set /etc/keystone/keystone-paste.ini "pipeline:public_api" pipeline "cors sizelimit url_normalize request_id build_auth_context token_auth json_body ec2_extension public_service"

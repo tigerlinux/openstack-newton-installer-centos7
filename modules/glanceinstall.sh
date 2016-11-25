@@ -82,7 +82,6 @@ sync
 # Using python based tools, we proceed to configure glance services
 #
 
-# crudini --set /etc/glance/glance-api.conf DEFAULT verbose False
 crudini --set /etc/glance/glance-api.conf DEFAULT debug False
 crudini --set /etc/glance/glance-api.conf glance_store default_store file
 crudini --set /etc/glance/glance-api.conf glance_store stores "file,http"
@@ -166,7 +165,6 @@ crudini --set /etc/glance/glance-api.conf keystone_authtoken password $glancepas
 crudini --set /etc/glance/glance-api.conf paste_deploy flavor keystone
 crudini --set /etc/glance/glance-registry.conf paste_deploy flavor keystone 
  
-# crudini --set /etc/glance/glance-registry.conf DEFAULT verbose False
 crudini --set /etc/glance/glance-registry.conf DEFAULT debug False
 crudini --set /etc/glance/glance-registry.conf DEFAULT bind_host 0.0.0.0
 crudini --set /etc/glance/glance-registry.conf DEFAULT bind_port 9191
@@ -188,7 +186,6 @@ crudini --set /etc/glance/glance-registry.conf keystone_authtoken project_name $
 crudini --set /etc/glance/glance-registry.conf keystone_authtoken username $glanceuser
 crudini --set /etc/glance/glance-registry.conf keystone_authtoken password $glancepass
  
-# crudini --set /etc/glance/glance-cache.conf DEFAULT verbose False
 crudini --set /etc/glance/glance-cache.conf DEFAULT debug False
 crudini --set /etc/glance/glance-cache.conf DEFAULT log_file /var/log/glance/image-cache.log
 crudini --set /etc/glance/glance-cache.conf DEFAULT image_cache_dir /var/lib/glance/image-cache/
@@ -268,18 +265,12 @@ then
 		echo "Configuring Glance to use SWIFT as storage backend"
                 crudini --set /etc/glance/glance-api.conf glance_store default_store swift
 		crudini --set /etc/glance/glance-api.conf glance_store default_swift_reference ref1
-                # crudini --set /etc/glance/glance-api.conf glance_store swift_store_auth_address http://$keystonehost:5000/v2.0
-                # crudini --set /etc/glance/glance-api.conf glance_store swift_store_user $keystoneservicestenant:$swiftuser
-                # crudini --set /etc/glance/glance-api.conf glance_store swift_store_key $swiftpass
                 crudini --set /etc/glance/glance-api.conf glance_store swift_store_create_container_on_put True
                 crudini --set /etc/glance/glance-api.conf glance_store swift_store_auth_version 3
                 crudini --set /etc/glance/glance-api.conf glance_store swift_store_container glance
 		crudini --set /etc/glance/glance-api.conf glance_store swift_store_config_file "/etc/glance/glance-swift.conf"
                 crudini --set /etc/glance/glance-cache.conf glance_store default_store swift
 		crudini --set /etc/glance/glance-cache.conf glance_store default_swift_reference ref1
-                # crudini --set /etc/glance/glance-cache.conf glance_store swift_store_auth_address http://$keystonehost:5000/v2.0
-                # crudini --set /etc/glance/glance-cache.conf glance_store swift_store_user $keystoneservicestenant:$swiftuser
-                # crudini --set /etc/glance/glance-cache.conf glance_store swift_store_key $swiftpass
                 crudini --set /etc/glance/glance-cache.conf glance_store swift_store_create_container_on_put True
                 crudini --set /etc/glance/glance-cache.conf glance_store swift_store_auth_version 3
                 crudini --set /etc/glance/glance-cache.conf glance_store swift_store_container glance

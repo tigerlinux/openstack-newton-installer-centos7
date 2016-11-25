@@ -113,19 +113,15 @@ do
 		crudini --set $myconffile database idle_timeout 3600
 		;;
 	"postgres")
-		# crudini --set $myconffile database connection postgresql+psycopg2://$trovedbuser:$trovedbpass@$dbbackendhost:$psqldbport/$trovedbname
 		crudini --set $myconffile database connection postgresql://$trovedbuser:$trovedbpass@$dbbackendhost:$psqldbport/$trovedbname
 		crudini --set $myconffile database idle_timeout 3600
 		;;
 	esac
 
 	crudini --set $myconffile DEFAULT log_dir /var/log/trove
-	# crudini --set $myconffile DEFAULT verbose False
 	crudini --set $myconffile DEFAULT debug False
 	crudini --set $myconffile DEFAULT control_exchange trove
-	# crudini --set $myconffile DEFAULT trove_auth_url http://$keystonehost:5000/v2.0
 	crudini --set $myconffile DEFAULT trove_auth_url http://$keystonehost:35357
-	# crudini --set $myconffile DEFAULT trove_auth_url http://$keystonehost:5000/v3
 	crudini --set $myconffile DEFAULT nova_compute_url http://$novahost:8774/v2.1
 	crudini --set $myconffile DEFAULT cinder_url http://$cinderhost:8776/v2
 	crudini --set $myconffile DEFAULT swift_url http://$swifthost:8080/v1/AUTH_
@@ -170,42 +166,34 @@ crudini --set /etc/trove/trove.conf DEFAULT neutron_service_type network
 crudini --del /etc/trove/trove.conf DEFAULT nova_compute_url
 crudini --del /etc/trove/trove.conf DEFAULT cinder_url
 crudini --del /etc/trove/trove.conf DEFAULT swift_url
-# crudini --del /etc/trove/trove.conf DEFAULT trove_auth_url
 # Failsafe #2
 crudini --del /etc/trove/trove.conf DEFAULT nova_compute_url
 crudini --del /etc/trove/trove.conf DEFAULT cinder_url
 crudini --del /etc/trove/trove.conf DEFAULT swift_url
-# crudini --del /etc/trove/trove.conf DEFAULT trove_auth_url
 
 crudini --set /etc/trove/trove-conductor.conf DEFAULT nova_proxy_admin_user $keystoneadminuser
 crudini --set /etc/trove/trove-conductor.conf DEFAULT nova_proxy_admin_pass $keystoneadminpass
 crudini --set /etc/trove/trove-conductor.conf DEFAULT nova_proxy_admin_tenant_name $keystoneadmintenant
-# crudini --set /etc/trove/trove-conductor.conf DEFAULT nova_proxy_admin_user $novauser
-# crudini --set /etc/trove/trove-conductor.conf DEFAULT nova_proxy_admin_pass $novapass
-# crudini --set /etc/trove/trove-conductor.conf DEFAULT nova_proxy_admin_tenant_name $keystoneadmintenant
 
-# Failsafe #1
+# Failsafe #3
 crudini --del /etc/trove/trove-conductor.conf DEFAULT nova_compute_url
 crudini --del /etc/trove/trove-conductor.conf DEFAULT cinder_url
 crudini --del /etc/trove/trove-conductor.conf DEFAULT swift_url
 
-# Failsafe #2
+# Failsafe #4
 crudini --del /etc/trove/trove-conductor.conf DEFAULT nova_compute_url
 crudini --del /etc/trove/trove-conductor.conf DEFAULT cinder_url
 crudini --del /etc/trove/trove-conductor.conf DEFAULT swift_url
 
 # New from NEWTON
-crudini --del /etc/trove/trove-taskmanager.conf DEFAULT usage_timeout 3600
-crudini --del /etc/trove/trove-taskmanager.conf DEFAULT restore_usage_timeout 36000
+crudini --set /etc/trove/trove-taskmanager.conf DEFAULT usage_timeout 3600
+crudini --set /etc/trove/trove-taskmanager.conf DEFAULT restore_usage_timeout 36000
 # FIX: https://bugs.launchpad.net/trove/+bug/1402055
-crudini --del /etc/trove/trove-taskmanager.conf DEFAULT exists_notification_transformer ""
+crudini --set /etc/trove/trove-taskmanager.conf DEFAULT exists_notification_transformer ""
 
 crudini --set /etc/trove/trove-taskmanager.conf DEFAULT nova_proxy_admin_user $keystoneadminuser
 crudini --set /etc/trove/trove-taskmanager.conf DEFAULT nova_proxy_admin_pass $keystoneadminpass
 crudini --set /etc/trove/trove-taskmanager.conf DEFAULT nova_proxy_admin_tenant_name $keystoneadmintenant
-# crudini --set /etc/trove/trove-taskmanager.conf DEFAULT nova_proxy_admin_user $novauser
-# crudini --set /etc/trove/trove-taskmanager.conf DEFAULT nova_proxy_admin_pass $novapass
-# crudini --set /etc/trove/trove-taskmanager.conf DEFAULT nova_proxy_admin_tenant_name $keystoneadmintenant
 
 crudini --set /etc/trove/trove-taskmanager.conf DEFAULT taskmanager_queue taskmanager
 
@@ -333,7 +321,6 @@ crudini --set /etc/trove/trove.conf keystone_authtoken auth_protocol http
 crudini --set /etc/trove/trove.conf keystone_authtoken admin_tenant_name $keystoneservicestenant
 crudini --set /etc/trove/trove.conf keystone_authtoken admin_user $troveuser
 crudini --set /etc/trove/trove.conf keystone_authtoken admin_password $trovepass
-# crudini --set /etc/trove/trove.conf keystone_authtoken auth_version v3
 crudini --set /etc/trove/trove.conf keystone_authtoken region $endpointsregion
 crudini --set /etc/trove/trove.conf keystone_authtoken memcached_servers $keystonehost:11211
 
@@ -353,7 +340,6 @@ crudini --set /etc/trove/trove-taskmanager.conf keystone_authtoken auth_protocol
 crudini --set /etc/trove/trove-taskmanager.conf keystone_authtoken admin_tenant_name $keystoneservicestenant
 crudini --set /etc/trove/trove-taskmanager.conf keystone_authtoken admin_user $troveuser
 crudini --set /etc/trove/trove-taskmanager.conf keystone_authtoken admin_password $trovepass
-# crudini --set /etc/trove/trove-taskmanager.conf keystone_authtoken auth_version v3
 crudini --set /etc/trove/trove-taskmanager.conf keystone_authtoken region $endpointsregion
 crudini --set /etc/trove/trove-taskmanager.conf keystone_authtoken memcached_servers $keystonehost:11211
 
@@ -435,13 +421,6 @@ do
 	systemctl status $myservice
 done
 
-# service openstack-trove-api start
-# service openstack-trove-taskmanager start
-# service openstack-trove-conductor start
-# chkconfig openstack-trove-api on
-# chkconfig openstack-trove-taskmanager on
-# chkconfig openstack-trove-conductor on
-
 #
 # And finally, we do a little test to ensure our trove packages are installed. If we
 # fail this test, we stop the installer from this point.
@@ -463,15 +442,12 @@ echo ""
 echo "Creating sample trove-guestagent file: /etc/trove/trove-guestagent.conf"
 echo ""
 
-# crudini --set /etc/trove/trove-guestagent.conf DEFAULT verbose False
 crudini --set /etc/trove/trove-guestagent.conf DEFAULT debug False
-# crudini --set /etc/trove/trove-guestagent.conf DEFAULT datastore_manager $trovedefaultds
 crudini --set /etc/trove/trove-guestagent.conf DEFAULT control_exchange trove
 crudini --set /etc/trove/trove-guestagent.conf DEFAULT nova_proxy_admin_user $keystoneadminuser
 crudini --set /etc/trove/trove-guestagent.conf DEFAULT nova_proxy_admin_pass $keystoneadminpass
 crudini --set /etc/trove/trove-guestagent.conf DEFAULT nova_proxy_admin_tenant_name $keystoneadmintenant
 crudini --set /etc/trove/trove-guestagent.conf DEFAULT trove_auth_url http://$keystonehost:35357/v2.0
-# crudini --set /etc/trove/trove-guestagent.conf DEFAULT trove_auth_url http://$keystonehost:35357/v3
 crudini --set /etc/trove/trove-guestagent.conf DEFAULT log_dir "/var/log/trove/"
 crudini --set /etc/trove/trove-guestagent.conf DEFAULT log_file guestagent.log
 

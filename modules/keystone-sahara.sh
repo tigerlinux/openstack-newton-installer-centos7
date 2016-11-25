@@ -44,7 +44,7 @@ else
 	exit 0
 fi
 
-if [ -f /etc/openstack-control-script-config/keystone-extra-idents ]
+if [ -f /etc/openstack-control-script-config/keystone-extra-idents-sahara ]
 then
 	echo ""
 	echo "This module was already completed. Exiting !"
@@ -84,6 +84,8 @@ openstack endpoint create --region $endpointsregion \
 
 openstack endpoint create --region $endpointsregion \
 	data_processing admin "http://$saharahost:8386/v1.1/\$(tenant_id)s"
+
+date > /etc/openstack-control-script-config/keystone-extra-idents-sahara
 
 echo "Ready"
 

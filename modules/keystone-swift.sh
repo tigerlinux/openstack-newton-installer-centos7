@@ -44,7 +44,7 @@ else
 	exit 0
 fi
 
-if [ -f /etc/openstack-control-script-config/keystone-extra-idents ]
+if [ -f /etc/openstack-control-script-config/keystone-extra-idents-swift ]
 then
 	echo ""
 	echo "This module was already completed. Exiting !"
@@ -81,6 +81,8 @@ openstack endpoint create --region $endpointsregion \
 
 openstack endpoint create --region $endpointsregion \
 	object-store admin http://$swifthost:8080/v1
+
+date > /etc/openstack-control-script-config/keystone-extra-idents-swift
 
 echo "Ready"
 

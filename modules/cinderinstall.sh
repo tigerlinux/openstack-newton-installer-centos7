@@ -91,13 +91,8 @@ crudini --set /etc/cinder/cinder.conf DEFAULT api_paste_config /etc/cinder/api-p
 crudini --set /etc/cinder/cinder.conf DEFAULT glance_host $glancehost
 crudini --set /etc/cinder/cinder.conf DEFAULT auth_strategy keystone
 crudini --set /etc/cinder/cinder.conf DEFAULT debug False
-# crudini --set /etc/cinder/cinder.conf DEFAULT verbose False
 crudini --set /etc/cinder/cinder.conf DEFAULT use_syslog False
 crudini --set /etc/cinder/cinder.conf DEFAULT my_ip $cinderhost
-
-# Deprecated
-# crudini --set /etc/cinder/cinder.conf DEFAULT enable_v1_api false
-# crudini --set /etc/cinder/cinder.conf DEFAULT enable_v2_api true
 
 crudini --set /etc/cinder/cinder.conf DEFAULT transport_url rabbit://$brokeruser:$brokerpass@$messagebrokerhost:5672/$brokervhost 
 crudini --set /etc/cinder/cinder.conf DEFAULT rpc_backend rabbit
@@ -116,8 +111,6 @@ crudini --set /etc/cinder/cinder.conf DEFAULT state_path /var/lib/cinder
 crudini --set /etc/cinder/cinder.conf DEFAULT volumes_dir /var/lib/cinder/volumes/
 crudini --set /etc/cinder/cinder.conf DEFAULT rootwrap_config /etc/cinder/rootwrap.conf
 crudini --set /etc/cinder/cinder.conf DEFAULT default_volume_type $default_volume_type
-
-# New in Mitaka
 crudini --set /etc/cinder/cinder.conf DEFAULT glance_api_servers http://$glancehost:9292
 
 #
@@ -319,24 +312,18 @@ if [ $cinderconfiglvm == "yes" ]
 then
 	source $keystone_admin_rc_file
 	openstack volume type create --property volume_backend_name=LVM_iSCSI --description "LVM iSCSI Backend" lvm
-	# cinder type-create lvm
-	# cinder type-key lvm set volume_backend_name=LVM_iSCSI
 fi
 
 if [ $cinderconfigglusterfs == "yes" ]
 then
 	source $keystone_admin_rc_file
 	openstack volume type create --property volume_backend_name=GLUSTERFS --description "GlusterFS Backend" glusterfs
-	# cinder type-create glusterfs
-	# cinder type-key glusterfs set volume_backend_name=GLUSTERFS
 fi
 
 if [ $cinderconfignfs == "yes" ]
 then
 	source $keystone_admin_rc_file
 	openstack volume type create --property volume_backend_name=NFS --description "NFS V3 Backend" nfs
-	# cinder type-create nfs
-	# cinder type-key nfs set volume_backend_name=NFS
 fi
 
 

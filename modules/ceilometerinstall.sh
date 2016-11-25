@@ -164,7 +164,6 @@ crudini --set /etc/ceilometer/ceilometer.conf keystone_authtoken admin_tenant_na
 crudini --set /etc/ceilometer/ceilometer.conf keystone_authtoken admin_user $ceilometeruser
 crudini --set /etc/ceilometer/ceilometer.conf keystone_authtoken admin_password $ceilometerpass
 crudini --set /etc/ceilometer/ceilometer.conf keystone_authtoken auth_type password
-# crudini --set /etc/ceilometer/ceilometer.conf keystone_authtoken auth_section keystone_authtoken
 crudini --set /etc/ceilometer/ceilometer.conf keystone_authtoken username $ceilometeruser
 crudini --set /etc/ceilometer/ceilometer.conf keystone_authtoken password $ceilometerpass
 crudini --set /etc/ceilometer/ceilometer.conf keystone_authtoken project_domain_name $keystonedomain
@@ -178,14 +177,11 @@ crudini --set /etc/ceilometer/ceilometer.conf keystone_authtoken memcached_serve
 crudini --set /etc/ceilometer/ceilometer.conf service_credentials os_username $ceilometeruser
 crudini --set /etc/ceilometer/ceilometer.conf service_credentials os_password $ceilometerpass
 crudini --set /etc/ceilometer/ceilometer.conf service_credentials os_tenant_name $keystoneservicestenant
-# crudini --set /etc/ceilometer/ceilometer.conf service_credentials os_auth_url http://$keystonehost:5000/v2.0
 crudini --set /etc/ceilometer/ceilometer.conf service_credentials os_auth_url http://$keystonehost:5000/v3
 crudini --set /etc/ceilometer/ceilometer.conf service_credentials os_region_name $endpointsregion
-# crudini --set /etc/ceilometer/ceilometer.conf service_credentials os_endpoint_type publicURL
 crudini --set /etc/ceilometer/ceilometer.conf service_credentials os_endpoint_type internalURL
 crudini --set /etc/ceilometer/ceilometer.conf service_credentials region_name $endpointsregion
 crudini --set /etc/ceilometer/ceilometer.conf service_credentials interface internal
-# crudini --set /etc/ceilometer/ceilometer.conf service_credentials auth_section keystone_authtoken
 crudini --set /etc/ceilometer/ceilometer.conf service_credentials auth_type password
 #
 crudini --set /etc/ceilometer/ceilometer.conf service_credentials username $ceilometeruser
@@ -202,7 +198,6 @@ crudini --set /etc/ceilometer/ceilometer.conf service_credentials project_name $
 crudini --set /etc/ceilometer/ceilometer.conf DEFAULT metering_api_port 8777
 crudini --set /etc/ceilometer/ceilometer.conf DEFAULT auth_strategy keystone
 crudini --set /etc/ceilometer/ceilometer.conf DEFAULT log_dir /var/log/ceilometer
-# crudini --set /etc/ceilometer/ceilometer.conf DEFAULT os_auth_region $endpointsregion
 crudini --set /etc/ceilometer/ceilometer.conf DEFAULT host `hostname`
 crudini --set /etc/ceilometer/ceilometer.conf DEFAULT pipeline_cfg_file pipeline.yaml
 crudini --set /etc/ceilometer/ceilometer.conf collector workers 2
@@ -234,7 +229,6 @@ else
 fi
 
 crudini --set /etc/ceilometer/ceilometer.conf DEFAULT debug false
-# crudini --set /etc/ceilometer/ceilometer.conf DEFAULT verbose false
 crudini --set /etc/ceilometer/ceilometer.conf database connection "mongodb://$mondbuser:$mondbpass@$mondbhost:$mondbport/$mondbname"
 crudini --set /etc/ceilometer/ceilometer.conf database metering_time_to_live $mongodbttl
 crudini --set /etc/ceilometer/ceilometer.conf database time_to_live $mongodbttl
@@ -342,6 +336,14 @@ then
 	sleep 5
 fi
 
+#
+# Customized api_paste for Newton
+#
+
+if [ $ceilometer_in_compute_node == "no" ]
+then
+	cat ./libs/ceilometer/api_paste.ini > /etc/ceilometer/api_paste.ini
+fi
 
 #
 # Ceilometer User need to be part of nova and qemu/kvm/libvirt groups
@@ -371,16 +373,18 @@ then
 		echo "#" >> /etc/aodh/aodh.conf
 		echo "#" >> /etc/aodh/api_paste.ini
 		crudini --set /etc/aodh/aodh.conf DEFAULT debug false
-		# crudini --set /etc/aodh/aodh.conf DEFAULT verbose false
 		case $dbflavor in
 		"mysql")
 			crudini --set /etc/aodh/aodh.conf database connection mysql+pymysql://$aodhdbuser:$aodhdbpass@$dbbackendhost:$mysqldbport/$aodhdbname
 			;;
 		"postgres")
-			# crudini --set /etc/aodh/aodh.conf database connection postgresql+psycopg2://$aodhdbuser:$aodhdbpass@$dbbackendhost:$psqldbport/$aodhdbname
 			crudini --set /etc/aodh/aodh.conf database connection postgresql://$aodhdbuser:$aodhdbpass@$dbbackendhost:$psqldbport/$aodhdbname
 			;;
 		esac
+		#
+		# Customized api_paster for Newton
+		#
+		cat ./libs/aodh/api_paste.ini > /etc/aodh/api_paste.ini
 		crudini --set /etc/aodh/aodh.conf DEFAULT auth_strategy keystone
 		crudini --set /etc/aodh/aodh.conf DEFAULT host `hostname`
 		crudini --set /etc/aodh/aodh.conf DEFAULT memcached_servers $keystonehost:11211
@@ -399,10 +403,6 @@ then
 		crudini --set /etc/aodh/aodh.conf keystone_authtoken signing_dir "/var/lib/aodh/tmp-signing"
 		crudini --set /etc/aodh/aodh.conf keystone_authtoken auth_version v3
 		crudini --set /etc/aodh/aodh.conf keystone_authtoken memcached_servers $keystonehost:11211
-		# crudini --set /etc/aodh/aodh.conf service_credentials os_username $aodhuser
-		# crudini --set /etc/aodh/aodh.conf service_credentials os_password $aodhpass
-		# crudini --set /etc/aodh/aodh.conf service_credentials os_tenant_name $keystoneservicestenant
-		# crudini --set /etc/aodh/aodh.conf service_credentials os_auth_url http://$keystonehost:5000/v3
 		crudini --set /etc/aodh/aodh.conf service_credentials region_name $endpointsregion
 		crudini --set /etc/aodh/aodh.conf service_credentials interface internal
 		crudini --set /etc/aodh/aodh.conf service_credentials auth_type password
@@ -491,9 +491,8 @@ then
 	systemctl start openstack-ceilometer-central
 	systemctl enable openstack-ceilometer-central
 
-	# systemctl start openstack-ceilometer-api
-	# systemctl enable openstack-ceilometer-api
 	systemctl disable openstack-ceilometer-api
+	systemctl stop openstack-ceilometer-api
 
 	systemctl start openstack-ceilometer-collector
 	systemctl enable openstack-ceilometer-collector

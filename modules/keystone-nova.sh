@@ -44,7 +44,7 @@ else
 	exit 0
 fi
 
-if [ -f /etc/openstack-control-script-config/keystone-extra-idents ]
+if [ -f /etc/openstack-control-script-config/keystone-extra-idents-nova ]
 then
 	echo ""
 	echo "This module was already completed. Exiting !"
@@ -82,6 +82,7 @@ openstack endpoint create --region $endpointsregion \
 openstack endpoint create --region $endpointsregion \
 	compute admin http://$novahost:8774/v2.1/%\(tenant_id\)s
 
+date > /etc/openstack-control-script-config/keystone-extra-idents-nova
 
 echo "Ready"
 

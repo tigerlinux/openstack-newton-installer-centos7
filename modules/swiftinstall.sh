@@ -191,7 +191,6 @@ swiftworkers="auto"
 mkdir -p "/var/cache/swift"
 chmod 0700 /var/cache/swift
 chown -R swift:swift /var/cache/swift
-# chown -R root:swift /var/cache/swift
  
 crudini --set /etc/swift/object-server.conf DEFAULT bind_ip $swifthost
 crudini --set /etc/swift/object-server.conf DEFAULT workers $swiftworkers

@@ -44,7 +44,7 @@ else
 	exit 0
 fi
 
-if [ -f /etc/openstack-control-script-config/keystone-extra-idents ]
+if [ -f /etc/openstack-control-script-config/keystone-extra-idents-heat ]
 then
 	echo ""
 	echo "This module was already completed. Exiting !"
@@ -118,6 +118,8 @@ openstack endpoint create --region $endpointsregion \
 
 openstack endpoint create --region $endpointsregion \
 	cloudformation admin http://$heathost:8000/v1
+
+date > /etc/openstack-control-script-config/keystone-extra-idents-heat
 
 echo "Ready"
 

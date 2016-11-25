@@ -44,7 +44,7 @@ else
 	exit 0
 fi
 
-if [ -f /etc/openstack-control-script-config/keystone-extra-idents ]
+if [ -f /etc/openstack-control-script-config/keystone-extra-idents-trove ]
 then
 	echo ""
 	echo "This module was already installed. Exiting !"
@@ -84,6 +84,8 @@ openstack endpoint create --region $endpointsregion \
 
 openstack endpoint create --region $endpointsregion \
 	database admin "http://$trovehost:8779/v1.0/\$(tenant_id)s"
+
+date > /etc/openstack-control-script-config/keystone-extra-idents-trove
 
 echo "Ready"
 

@@ -44,7 +44,7 @@ else
 	exit 0
 fi
 
-if [ -f /etc/openstack-control-script-config/keystone-extra-idents ]
+if [ -f /etc/openstack-control-script-config/keystone-extra-idents-extra-tenants ]
 then
 	echo ""
 	echo "This module was alread completed. Exiting !"
@@ -74,6 +74,8 @@ do
 		openstack role add --project $myidentityname --user $myidentityname $heat_stack_owner
 	fi
 done
+
+date > /etc/openstack-control-script-config/keystone-extra-idents-extra-tenants
 
 sync
 sleep 5
