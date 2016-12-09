@@ -260,6 +260,7 @@ crudini --set /etc/nova/nova.conf DEFAULT instance_name_template $instance_name_
 crudini --set /etc/nova/nova.conf DEFAULT allow_resize_to_same_host $allow_resize_to_same_host
 crudini --set /etc/nova/nova.conf DEFAULT ram_allocation_ratio $ram_allocation_ratio
 crudini --set /etc/nova/nova.conf DEFAULT cpu_allocation_ratio $cpu_allocation_ratio
+crudini --set /etc/nova/nova.conf DEFAULT disk_allocation_ratio $disk_allocation_ratio
 crudini --set /etc/nova/nova.conf DEFAULT connection_type libvirt
 crudini --set /etc/nova/nova.conf DEFAULT scheduler_default_filters "RetryFilter, AvailabilityZoneFilter, RamFilter, DiskFilter, ComputeFilter, ComputeCapabilitiesFilter, ImagePropertiesFilter, ServerGroupAntiAffinityFilter, ServerGroupAffinityFilter"
 crudini --set /etc/nova/nova.conf DEFAULT dhcp_domain $dhcp_domain

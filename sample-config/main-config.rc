@@ -5,8 +5,8 @@
 # E-Mail: TigerLinux@Gmail.com
 #
 # Main Configuration
-# Version: 1.0.0.el7 "Flying Tiger"
-# November 25, 2016
+# Version: 1.0.1.el7 "Flying Tiger"
+# December 08, 2016
 #
 
 #
@@ -513,10 +513,11 @@ novaemail="nova@localhost"
 # strict.
 extranovahosts=""
 #
-# Over-subscription CPU/RAM control. Please read in openstack manuals what this mean.
+# Over-subscription CPU/RAM/DISK control. Please read in openstack manuals what this mean.
 # You probably want to use those defaults... then again, maybe not.
 ram_allocation_ratio="1.5"
 cpu_allocation_ratio="16.0"
+disk_allocation_ratio="1.0"
 #
 # The same way we allow you to select flavors for database, token provider and message
 # broker, we also can allow you to select the console flavor. The default (vnc) is OK for

@@ -1,3 +1,9 @@
+1.0.1.el7 - December 08, 2016
+
+- Added "disk_allocation_ratio" variable for disk over
+  suscription control.
+- Re-added missing local settings file for Horizon.
+
 1.0.0.el7 - November 25, 2016
 
 - First non-beta release version for our Newton installer.
