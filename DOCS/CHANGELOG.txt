@@ -1,3 +1,7 @@
+1.0.2.el7 - December 12, 2016
+
+- Corrected some typos on horizon install module.
+
 1.0.1.el7 - December 08, 2016
 
 - Added "disk_allocation_ratio" variable for disk over

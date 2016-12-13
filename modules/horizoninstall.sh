@@ -66,22 +66,22 @@ echo "Installing Horizon Packages"
 
 yum install -y memcached python-memcached openstack-dashboard httpd
 
-if [ troveinstall == "yes" ]
+if [ $troveinstall == "yes" ]
 then
 	yum install -y openstack-trove-ui
 fi
 
-if [ saharainstall == "yes" ]
+if [ $saharainstall == "yes" ]
 then
 	yum install -y openstack-sahara-ui
 fi
 
-if [ manilainstall == "yes" ]
+if [ $manilainstall == "yes" ]
 then
 	yum install -y openstack-manila-ui
 fi
 
-if [ neutroninstall == "yes" ]
+if [ $neutroninstall == "yes" ]
 then
 	yum install -y openstack-neutron-lbaas-ui
 fi
