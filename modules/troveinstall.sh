@@ -128,7 +128,8 @@ do
 	crudini --set $myconffile DEFAULT notifier_queue_hostname $messagebrokerhost
 
 	crudini --set $myconffile DEFAULT transport_url rabbit://$brokeruser:$brokerpass@$messagebrokerhost:5672/$brokervhost 
-	crudini --set $myconffile DEFAULT rpc_backend trove.openstack.common.rpc.impl_kombu
+	# crudini --set $myconffile DEFAULT rpc_backend trove.openstack.common.rpc.impl_kombu
+	crudini --set $myconffile DEFAULT rpc_backend rabbit
 	crudini --set $myconffile DEFAULT rabbit_password $brokerpass
 	crudini --set $myconffile oslo_messaging_rabbit rabbit_host $messagebrokerhost
 	crudini --set $myconffile oslo_messaging_rabbit rabbit_password $brokerpass
@@ -139,6 +140,7 @@ do
 	crudini --set $myconffile oslo_messaging_rabbit rabbit_max_retries 0
 	crudini --set $myconffile oslo_messaging_rabbit rabbit_retry_interval 1
 	crudini --set $myconffile oslo_messaging_rabbit rabbit_ha_queues false
+	crudini --set $myconffile oslo_messaging_notifications driver messagingv2
 done
 
 keystoneadminid=`openstack project show $keystoneadminuser -f shell|grep ^id=|cut -d\" -f2`
@@ -147,6 +149,7 @@ crudini --set /etc/trove/trove-taskmanager.conf DEFAULT nova_proxy_admin_user $k
 crudini --set /etc/trove/trove-taskmanager.conf DEFAULT nova_proxy_admin_pass $keystoneadminpass
 crudini --set /etc/trove/trove-taskmanager.conf DEFAULT nova_proxy_admin_tenant_name $keystoneadmintenant
 crudini --set /etc/trove/trove-taskmanager.conf DEFAULT nova_proxy_admin_tenant_id $keystoneadminid
+crudini --set /etc/trove/trove-taskmanager.conf DEFAULT use_nova_server_config_drive False
 
 crudini --set /etc/trove/trove.conf DEFAULT nova_proxy_admin_user $keystoneadminuser
 crudini --set /etc/trove/trove.conf DEFAULT nova_proxy_admin_pass $keystoneadminpass
@@ -343,6 +346,9 @@ crudini --set /etc/trove/trove-taskmanager.conf keystone_authtoken admin_passwor
 crudini --set /etc/trove/trove-taskmanager.conf keystone_authtoken region $endpointsregion
 crudini --set /etc/trove/trove-taskmanager.conf keystone_authtoken memcached_servers $keystonehost:11211
 
+# Neutron as network driver:
+crudini --set /etc/trove/trove.conf DEFAULT network_driver "trove.network.neutron.NeutronDriver"
+crudini --set /etc/trove/trove-taskmanager.conf DEFAULT network_driver "trove.network.neutron.NeutronDriver"
 
 mkdir -p /var/cache/trove
 mkdir -p /etc/trove/cloudinit
@@ -439,7 +445,7 @@ else
 fi
 
 echo ""
-echo "Creating sample trove-guestagent file: /etc/trove/trove-guestagent.conf"
+echo "Creating trove-guestagent file: /etc/trove/trove-guestagent.conf"
 echo ""
 
 crudini --set /etc/trove/trove-guestagent.conf DEFAULT debug False
@@ -454,7 +460,8 @@ crudini --set /etc/trove/trove-guestagent.conf DEFAULT log_file guestagent.log
 crudini --set /etc/trove/trove-guestagent.conf DEFAULT os_region_name $endpointsregion
 crudini --set /etc/trove/trove-guestagent.conf DEFAULT swift_service_type object-store
 crudini --set /etc/trove/trove-guestagent.conf DEFAULT storage_strategy SwiftStorage
-crudini --set /etc/trove/trove-guestagent.conf DEFAULT storage_namespace trove.guestagent.strategies.storage.swift
+# crudini --set /etc/trove/trove-guestagent.conf DEFAULT storage_namespace trove.guestagent.strategies.storage.swift
+crudini --set /etc/trove/trove-guestagent.conf DEFAULT storage_namespace trove.common.strategies.storage.swift
 crudini --set /etc/trove/trove-guestagent.conf DEFAULT backup_swift_container database_backups
 crudini --set /etc/trove/trove-guestagent.conf DEFAULT backup_use_gzip_compression True
 crudini --set /etc/trove/trove-guestagent.conf DEFAULT backup_use_openssl_encryption True
@@ -464,7 +471,8 @@ crudini --set /etc/trove/trove-guestagent.conf DEFAULT backup_chunk_size 65536
 crudini --set /etc/trove/trove-guestagent.conf DEFAULT backup_segment_max_size 2147483648
 
 crudini --set /etc/trove/trove-guestagent.conf DEFAULT transport_url rabbit://$brokeruser:$brokerpass@$messagebrokerhost:5672/$brokervhost
-crudini --set /etc/trove/trove-guestagent.conf DEFAULT rpc_backend trove.openstack.common.rpc.impl_kombu
+# crudini --set /etc/trove/trove-guestagent.conf DEFAULT rpc_backend trove.openstack.common.rpc.impl_kombu
+crudini --set /etc/trove/trove-guestagent.conf DEFAULT rpc_backend rabbit
 crudini --set /etc/trove/trove-guestagent.conf DEFAULT rabbit_password $brokerpass
 crudini --set /etc/trove/trove-guestagent.conf DEFAULT rabbit_host $messagebrokerhost
 crudini --set /etc/trove/trove-guestagent.conf DEFAULT rabbit_userid $brokeruser
@@ -480,6 +488,7 @@ crudini --set /etc/trove/trove-guestagent.conf oslo_messaging_rabbit rabbit_virt
 crudini --set /etc/trove/trove-guestagent.conf oslo_messaging_rabbit rabbit_max_retries 0
 crudini --set /etc/trove/trove-guestagent.conf oslo_messaging_rabbit rabbit_retry_interval 1
 crudini --set /etc/trove/trove-guestagent.conf oslo_messaging_rabbit rabbit_ha_queues false
+crudini --set /etc/trove/trove-guestagent.conf oslo_messaging_notifications driver messagingv2
 
 chown trove.trove /etc/trove/trove-guestagent.conf
 

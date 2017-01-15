@@ -261,11 +261,15 @@ fi
 # End of patch
 #
 
-service httpd restart
-chkconfig httpd on
 
-service memcached restart
+cat ./libs/memcached/memcached > /etc/sysconfig/memcached
+systemctl enable memcached
+systemctl stop memcached
+systemctl start memcached
+systemctl enable memcached
 chkconfig memcached on
+systemctl restart httpd
+systemctl enable httpd
 
 #
 # And finally, we ensure our packages are correctly installed, if not, we fail and stop

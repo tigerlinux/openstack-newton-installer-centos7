@@ -329,6 +329,10 @@ then
 	cp -v ./libs/ceilometer/wsgi-ceilometer.conf /etc/httpd/conf.d/
 	mkdir -p /var/www/cgi-bin/ceilometer
 	cp -v ./libs/ceilometer/app.wsgi /var/www/cgi-bin/ceilometer/app.wsgi
+	cat ./libs/memcached/memcached > /etc/sysconfig/memcached
+	systemctl stop memcached
+	systemctl start memcached
+	systemctl enable memcached
 	systemctl enable httpd
 	systemctl stop httpd
 	sleep 5
@@ -441,7 +445,11 @@ then
 		cp -v ./libs/aodh/wsgi-aodh.conf /etc/httpd/conf.d/
 		mkdir -p /var/www/cgi-bin/aodh
 		cp -v ./libs/aodh/app.wsgi /var/www/cgi-bin/aodh/app.wsgi
+		cat ./libs/memcached/memcached > /etc/sysconfig/memcached
 		systemctl enable httpd
+		systemctl stop memcached
+		systemctl start memcached
+		systemctl enable memcached
 		systemctl stop httpd
 		sleep 5
 		systemctl start httpd

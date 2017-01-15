@@ -1,3 +1,8 @@
+1.0.3.el7 - January 15, 2017
+
+- Minor corrections for memcached usage where needed.
+- Major corrections in trove install/config module.
+
 1.0.2.el7 - December 12, 2016
 
 - Corrected some typos on horizon install module.

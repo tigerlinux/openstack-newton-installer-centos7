@@ -315,6 +315,9 @@ systemctl start \
 # We start and enable swift proxy and memcached services
 #
 
+cat ./libs/memcached/memcached > /etc/sysconfig/memcached
+
+systemctl stop memcached
 systemctl start memcached
 systemctl start openstack-swift-proxy
 systemctl enable memcached

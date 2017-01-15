@@ -107,8 +107,11 @@ yum -y install python-openstackclient
 # We also start/enable memcached service
 #
 
-systemctl enable memcached.service
-systemctl start memcached.service
+cat ./libs/memcached/memcached > /etc/sysconfig/memcached
+
+systemctl enable memcached
+systemctl stop memcached
+systemctl start memcached
 
 echo "Done"
 
@@ -208,8 +211,11 @@ echo "Starting Keystone"
 systemctl stop openstack-keystone.service
 systemctl disable openstack-keystone.service
 
-systemctl start memcached.service
-systemctl enable memcached.service
+cat ./libs/memcached/memcached > /etc/sysconfig/memcached
+
+systemctl stop memcached
+systemctl start memcached
+systemctl enable memcached
 
 ln -s /usr/share/keystone/wsgi-keystone.conf /etc/httpd/conf.d/
 
