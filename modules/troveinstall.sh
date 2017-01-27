@@ -349,6 +349,8 @@ crudini --set /etc/trove/trove-taskmanager.conf keystone_authtoken memcached_ser
 # Neutron as network driver:
 crudini --set /etc/trove/trove.conf DEFAULT network_driver "trove.network.neutron.NeutronDriver"
 crudini --set /etc/trove/trove-taskmanager.conf DEFAULT network_driver "trove.network.neutron.NeutronDriver"
+crudini --set /etc/trove/trove-taskmanager.conf DEFAULT network_label_regex ".*"
+crudini --set /etc/trove/trove.conf DEFAULT network_label_regex ".*"
 
 mkdir -p /var/cache/trove
 mkdir -p /etc/trove/cloudinit

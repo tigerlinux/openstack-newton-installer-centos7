@@ -5,8 +5,8 @@
 # E-Mail: TigerLinux@Gmail.com
 #
 # Main Installer Script
-# Version: 1.0.3.el7 "Flying Tiger"
-# January 15, 2017
+# Version: 1.0.4.el7 "Flying Tiger"
+# January 27, 2017
 #
 
 PATH=$PATH:/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin
@@ -74,7 +74,7 @@ case $1 in
 	echo "Flavor: OpenStack NEWTON for Centos 7"
 	echo "Made by: Reynaldo R. Martinez P."
 	echo "E-Mail: TigerLinux@Gmail.com"
-	echo "Version 1.0.3.el7 \"Flying Tiger\" - January 15, 2017"
+	echo "Version 1.0.4.el7 \"Flying Tiger\" - January 27, 2017"
 	echo ""
 	echo "I'll verify all requiremens"
 	echo "If any requirement is not met, I'll stop and inform what's missing"

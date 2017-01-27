@@ -1,3 +1,9 @@
+1.0.4.el7 - January 27, 2017
+
+- More corrections in trove install/config module related
+  to neutron networks due complete deprecation of nova
+  networking.
+
 1.0.3.el7 - January 15, 2017
 
 - Minor corrections for memcached usage where needed.
