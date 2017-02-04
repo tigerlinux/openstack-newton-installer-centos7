@@ -1,3 +1,10 @@
+1.0.5.elt - February 04, 2017
+
+- Corrections in nova install module regarding correct
+  variable to assign kvm or qemu as hypervisor.
+- Aditional python libraries included on requeriments
+  installation module.
+
 1.0.4.el7 - January 27, 2017
 
 - More corrections in trove install/config module related

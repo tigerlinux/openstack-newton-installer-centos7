@@ -116,6 +116,8 @@ yum -y install python-openstackclient
 
 yum -y install spice-html5
 
+yum -y install python-rtslib
+
 #
 # From v 1.0.2 - Liberty Installer
 yum -y install ntfsprogs ntfs-3g

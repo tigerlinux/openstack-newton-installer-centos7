@@ -254,6 +254,7 @@ crudini --set /etc/nova/nova.conf oslo_concurrency lock_path "/var/oslock/nova"
 crudini --set /etc/nova/nova.conf DEFAULT metadata_host $novahost
 crudini --set /etc/nova/nova.conf DEFAULT enabled_apis "osapi_compute,metadata"
 crudini --set /etc/nova/nova.conf libvirt virt_type kvm
+crudini --set /etc/nova/nova.conf libvirt libvirt_type kvm
 crudini --set /etc/nova/nova.conf DEFAULT start_guests_on_host_boot $start_guests_on_host_boot
 crudini --set /etc/nova/nova.conf DEFAULT resume_guests_state_on_host_boot $resume_guests_state_on_host_boot
 crudini --set /etc/nova/nova.conf DEFAULT instance_name_template $instance_name_template
@@ -372,6 +373,7 @@ then
 	echo ""
 	source $keystone_admin_rc_file
 	crudini --set /etc/nova/nova.conf libvirt virt_type qemu
+	crudini --set /etc/nova/nova.conf libvirt libvirt_type qemu
 	setsebool -P virt_use_execmem on
 	ln -s -f /usr/libexec/qemu-kvm /usr/bin/qemu-system-x86_64
 	service libvirtd restart
