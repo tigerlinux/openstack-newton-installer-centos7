@@ -1,4 +1,13 @@
-1.0.5.elt - February 04, 2017
+1.0.6.el7 - February 10, 2017
+
+- Changes and minor corrections in heat. OpenStack
+  documentation wrongly states ec2 auth to the keystone
+  root url, but it does not work unless /v2.0 is appended
+  at the end of the URL.
+- Default dhcp lease time on main config set to "-1". This
+  sets the lease time to "infinite".
+
+1.0.5.el7 - February 04, 2017
 
 - Corrections in nova install module regarding correct
   variable to assign kvm or qemu as hypervisor.

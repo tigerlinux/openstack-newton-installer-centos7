@@ -5,8 +5,8 @@
 # E-Mail: TigerLinux@Gmail.com
 #
 # Main Configuration
-# Version: 1.0.5.el7 "Flying Tiger"
-# February 04, 2017
+# Version: 1.0.6.el7 "Flying Tiger"
+# February 10, 2017
 #
 
 #
@@ -398,7 +398,8 @@ metadata_shared_secret="P@ssw0rd"
 # VM's Base Mac. Normally you should not need to change this
 basemacspec="fa:16:3e:00:00:00"
 # Lease duration in seconds
-dhcp_lease_duration="7200"
+# "-1" set "infinite" lease duration
+dhcp_lease_duration="-1"
 #
 # If you change the following variable to "yes", we'll include a DNSMASQ rule
 # that will try to force a MTU of 1454 bytes trough dhcp option 26. This is only
