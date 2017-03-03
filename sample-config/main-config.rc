@@ -5,8 +5,8 @@
 # E-Mail: TigerLinux@Gmail.com
 #
 # Main Configuration
-# Version: 1.0.6.el7 "Flying Tiger"
-# February 10, 2017
+# Version: 1.1.0.el7 "Flying Tiger"
+# March 03, 2017
 #
 
 #
@@ -287,24 +287,37 @@ extraglancehosts=""
 # OPENSTACK CINDER
 #
 # If you are installing a controller, and want to use cinder, you must use "yes" in
-# order to install cinder. If it is a compute, use "no":
+# order to install cinder. If it is a compute, use "no". If it's a cinder storage node,
+# set the variable to "yes" too:
 cinderinstall="yes"
 # The host IP is normally the one of the controller and you MUST specify it either if
 # you are installing the controller or a compute node. This is normally the controller
 # IP address or FQDN if you prefer to use DNS. Also, remember to change the password and
 # e-mail.
+# Note that "cinderhost" IP/FQDN is the one of your controller and it must be the same
+# configured in all your cinder hosts, because it represents the "cinder controller" IP.
 cinderhost="192.168.56.60"
 cinderuser="cinder"
 cindersvce="cinder"
 cindersvcev2="cinderv2"
 cinderpass="P@ssw0rd"
 cinderemail="cinder@localhost"
+# If your cinder node is a storage host (not all-in-one, not a controller), set the
+# IP of your host here. If you are installing an "all-in-one" or a "controller", the
+# ip here must be the same as in "cinderhost" variable above. If this node is a dedicated
+# storage node, the "cinderhost" variable must be the same as your cinder controller, and 
+# the following variable must be set to the "specific storage node" you are configuring:
+cindernodehost="192.168.56.60"
+#
+# Next, you can select your storage backends. Do this if you are installing a cinder
+# storage solution (cinder server with storage, or cinder storage-only node).
 #
 # If you want to include the lvm backend, leave the following variable at "yes". Otherwise,
 # put "no" here:
 cinderconfiglvm="yes"
 # Our default is to use iscsi. Put here the iscsi server IP. It can be the one of the
-# controller, if you are using a LVM "cinder-volumes" inside the controller.
+# controller, if you are using a LVM "cinder-volumes" inside the controller. Also, if you are
+# configuring a dedicated storage node, set the node IP here (not the one of your controller)
 cinder_iscsi_ip_address="192.168.56.60"
 cinderlvmname="cinder-volumes"
 # Only if you are using MySQL as DB backend. If for any chance, you have multiple
@@ -340,8 +353,23 @@ nfsresource="192.168.1.1:/data/openstack-nfs"
 nfs_mount_options="rw,hard,intr,timeo=90,bg,vers=3,proto=tcp,rsize=32768,wsize=32768"
 #
 #
-# Depending of your volumen backend selection, set your default volume type. Our default is "lvm"
-default_volume_type="lvm"
+# Depending of your volume backend selection, set your default volume type. Our default is "lvm" in
+# the first "cindernodehost" you configure. Due the fact that the installer let you config the same
+# backend class in multiple cinder storage hosts, all backend classes are appended with the "node host
+# IP address", so, if you have by example 3 hosts all with lvm enable, you'll end with 3 lvm's with
+# the names: lvm-x.y.z.k, lvm-a.b.c.d and lvm-p.q.r.s so enable one as your default !.
+default_volume_type="lvm-$cindernodehost"
+#
+# Finally, the most important setting for your cinder installation. You can install multiple
+# cinder nodes with our installer. Your first note should be "at least" a "controller" node. Here,
+# you are presented with 3 options:
+# "allinone": This is a cinder node which is both a cinder-controller and a cinder-storage node.
+# "controller": This is a cinder node which is a dedicated controller.
+# "storage": This is a conder node which is a storage node.
+# The default for us, if you are installing a "all-in-one" openstack server, is "allinone":
+cindernodetype="allinone"
+# Please remember: Your first cinder node must be either "allinone" or "controller". Aditional
+# nodes must be set to "storage".
 
 
 
@@ -563,6 +591,10 @@ libvirt_cpu_mode="host-passthrough"
 # vmware, kvm-qemu, openstack or another VPS that is already virtual, you "should" change the following
 # variable to "yes". Otherwise, leave it to "no".
 forceqemu="no"
+#
+# VHOST NET: Normally, this is a good option to set in your system. If you leave this to our default (yes)
+# we'll force vhost_net module at boot time into the operating system:
+vhostnet="yes"
 
 
 
@@ -636,6 +668,11 @@ swiftmetrics="no"
 # The proposed value here amounts for 7 days (3600x24x7)
 #
 mongodbttl="604800"
+#
+# Measurement interval. By default, ceilometer take measurements every 600 seconds, but, if you
+# plan to include AutoScaling in your cloud, is better idea to set the value to 60 seconds. Let
+# the following value in 600 seconds if you don't plan to use AutoScaling. Else, set it to 60
+ceilointerval="600"
 
 
 

@@ -1,3 +1,23 @@
+1.1.0.el7 - March 3, 2017
+
+- Major changes on cinder install module. Added the needed
+  config and code items to allow the installer to install
+  and configure more complex cinder setups with multiple
+  dedicated storage nodes and a dedicated cinder controller
+  server, or, a default all-in-one cinder server with
+  optional cinder dedicated storage nodes.
+- Added a variable in our config file to change the default
+  measurement time in ceilometer (600 seconds) to any other
+  value. This is specially usefull in "autoscaling"
+  environments with HEAT.
+- Added temporary workaround in neutron install module in
+  order to fix conflicting package versions between EPEL
+  and Newton RDO Repositories (zeromq packages). Note that
+  this workaround only covers the installation, not any
+  update. In order to correctly update (while the problem
+  is solved by either RDO or EPEL), you'll have to exclude
+  all zeromq packages from the "yum update" command.
+
 1.0.6.el7 - February 10, 2017
 
 - Changes and minor corrections in heat. OpenStack

@@ -72,7 +72,13 @@ fi
 
 echo "Installing NEUTRON Packages"
 
-yum install -y openstack-neutron \
+#
+#
+# NOTE: From March 02, temporary workaround "--disablerepo=epel*" in order to avoid
+# some conflicts between zeromq packages in EPEL and Centos-Cloud-Newton repos.
+#
+
+yum install -y --disablerepo=epel* openstack-neutron \
 	openstack-neutron-openvswitch \
 	openstack-neutron-ml2 \
 	openstack-utils \
@@ -88,13 +94,13 @@ yum install -y openstack-neutron \
 
 if [ $vpnaasinstall == "yes" ]
 then
-	yum install -y openstack-neutron-vpnaas \
+	yum install -y --disablerepo=epel* openstack-neutron-vpnaas \
 		strongswan strongswan-libipsec strongswan-charon-nm strongswan-tnc-imcvs
 fi
 
 if [ $neutronmetering == "yes" ]
 then
-	yum install -y openstack-neutron-metering-agent
+	yum install -y --disablerepo=epel* openstack-neutron-metering-agent
 fi
 
 echo ""

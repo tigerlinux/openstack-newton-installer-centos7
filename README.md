@@ -93,6 +93,7 @@ As mentioned before, you can use this installer for more complex designs. Exampl
 * A single all-in-one monolithic server
 * A cloud with a controller-compute and several compute nodes
 * A cloud with a pure controller and several compute nodes
+* A combination of the above and multiple storage nodes
 
 As mentioned initially, you can use this installer with few modifications if you want to create a redundante system (two controllers with High Availability). See the following link in order to see what is required from you for this task:
 
@@ -159,6 +160,76 @@ For compute nodes, you must place the following variables with the IP in the com
 neutron_computehost="Compute Host IP Address"
 nova_computehost="Compute Host IP Address "
 ```
+
+
+### Cinder complex setups with multiple storage nodes.
+
+This installer, in it's default form, will create a single cinder node that is both "cinder controller" and "cinder storage node". You can change this behaviour and install several additional storage nodes by modifying the following variables in the installer you run our your nodes:
+
+#### First node: "all-in-one" cinder node or "dedicated controller" node.
+
+Always install your all-in-one or dedicated controller node first.
+
+If your node is an "all-in-one", let the variables in the cinder section on the main-config as they are and only modify the sections for your lvm/nfs/gluster backends if aplicable.
+
+If your node is a "dedicated controller", first thing to do is change "cindernodetype" variable to "controller":
+
+```bash
+cindernodetype="controller"
+```
+
+Set the variables "cinderconfigglusterfs", "cinderconfiglvm" and "cinderconfignfs" to "no":
+
+```bash
+cinderconfiglvm="no"
+cinderconfigglusterfs="no"
+cinderconfignfs="no"
+```
+
+Set the variables "cinderhost" and "cindernodehost" to the same IP, in this case, the IP of your "cinder controller or all-in-one" node. Example:
+
+```bash
+cinderhost="192.168.56.60"
+cindernodehost="192.168.56.60"
+```
+
+Finally, set your "default_volume_type" variable to the backend you want to consider "your default". Take note on the following: This installer will create the backend names in the form: type-IP where type is on of "lvm", "nfs", and "glusterfs", and IP is the node IP where the backend is located. By default, if the node you are configuring is the first-and-only "all-in-one" node, and you are configuring nfs, lvm and/or glusterfs, you can choose one of them as your default_volume_type. Example:
+
+```bash
+default_volume_type="lvm-192.168.50.60"
+```
+
+But, if you are configuring a dedicated cinder controller without storage, and your next node is a storage one with, by example, IP 192.168.60.61, and your only backend there is "nfs", you should configure your "default_volume_type" to:
+
+```bash
+default_volume_type="nfs-192.168.50.61"
+```
+
+#### Additional nodes: dedicated storage nodes.
+
+Again: Always install your all-in-one or dedicated controller node first. If you fail to do this properly, you'll be unable to add storage nodes.
+
+First thing to do in your installer at your dedicated storage node is set the following variable to "storage":
+
+```bash
+cindernodetype="storage"
+```
+
+Second thing is to adjust the following variables. Teh first one (cinderhost) is the IP of your all-in-one or dedicated-controller cinder server. The second IP (cindernodehost) is the IP of the dedicated storage node you are currently configuring. Example here, where your controller-or-all-in-one is 192.168.56.60 and the storage node you are currently installing is 192.168.56.61:
+
+```bash
+cinderhost="192.168.56.60"
+cindernodehost="192.168.56.61"
+```
+
+After configuring this, you can set your backends (nfs, lvm, glusterfs, or none).
+
+Set the variable "default_volume_type" the same as in your first cinder node (the one you installed as controller or all-in-one). This variable must be set the same along all your cinder servers (controller or all-in-one and storage nodes):
+
+```bash
+default_volume_type="nfs-192.168.50.61"
+```
+
 
 ### Database Backend
 

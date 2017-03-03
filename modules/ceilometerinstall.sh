@@ -465,6 +465,9 @@ fi
 mkdir -p /var/lib/ceilometer/tmp
 chown ceilometer.ceilometer /var/lib/ceilometer/tmp
 
+cat ./libs/ceilometer/pipeline.yaml > /etc/ceilometer/pipeline.yaml
+sed -r -i 's/METRICINTERVAL/$ceilointerval/g' /etc/ceilometer/pipeline.yaml
+
 
 echo ""
 echo "Applying IPTABLES Rules"

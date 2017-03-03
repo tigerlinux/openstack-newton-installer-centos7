@@ -34,8 +34,8 @@ rm -rf /tmp/cd_gen_*
 # Then we begin some verifications
 #
 
-# epelinstalled=`rpm -qa|grep epel-release.\*noarch|wc -l`
-epelinstalled=`yum info ansible|grep -ci ^repo.\*epel`
+epelinstalled=`rpm -qa|grep epel-release.\*noarch|wc -l`
+# epelinstalled=`yum info ansible|grep -ci ^repo.\*epel`
 amiroot=` whoami|grep root|wc -l`
 amiarhel7=`cat /etc/redhat-release |grep 7.|wc -l`
 internalbridgeinterface=`ifconfig $integration_bridge|grep -c $integration_bridge`
@@ -295,5 +295,12 @@ else
 	echo ""
 	echo "Libvirt and dependencies installed"
 	echo ""
+fi
+
+if [ $vhostnet == "yes" ]
+then
+	echo "/sbin/modprobe vhost_net" > /etc/sysconfig/modules/vhost_net.modules
+	chmod 755 /etc/sysconfig/modules/vhost_net.modules
+	modprobe vhost_net
 fi
 

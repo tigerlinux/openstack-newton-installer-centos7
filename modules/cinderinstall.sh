@@ -63,12 +63,29 @@ echo "Installing Cinder Packages"
 # We proceed to install the cinder packages and dependencies
 #
 
-yum -y install openstack-cinder openstack-utils openstack-selinux python-oslo-db
-yum -y install lvm2
-yum -y install openstack-cinder targetcli python-oslo-db python-oslo-log MySQL-python
-
-systemctl enable lvm2-lvmetad.service
-systemctl start lvm2-lvmetad.service
+case $cindernodetype in
+"allinone")
+	echo "Installing cinder packages for an ALL-IN-ONE Cinder node"
+	yum -y install openstack-cinder openstack-utils openstack-selinux
+	yum -y install lvm2 targetcli
+	yum -y install python-oslo-db python-oslo-log MySQL-python
+	systemctl enable lvm2-lvmetad.service
+	systemctl start lvm2-lvmetad.service
+	;;
+"controller")
+	echo "Installing cinder packages for a Cinder-Controller node"
+	yum -y install openstack-cinder openstack-utils openstack-selinux
+	yum -y install python-oslo-db python-oslo-log MySQL-python
+	;;
+"storage")
+	echo "Installing cinder packages for a Cinder storage-only node"
+	yum -y install openstack-cinder openstack-utils openstack-selinux
+	yum -y install lvm2 targetcli
+	yum -y install python-oslo-db python-oslo-log MySQL-python
+	systemctl enable lvm2-lvmetad.service
+	systemctl start lvm2-lvmetad.service
+	;;
+esac
 
 source $keystone_admin_rc_file
 
@@ -92,7 +109,7 @@ crudini --set /etc/cinder/cinder.conf DEFAULT glance_host $glancehost
 crudini --set /etc/cinder/cinder.conf DEFAULT auth_strategy keystone
 crudini --set /etc/cinder/cinder.conf DEFAULT debug False
 crudini --set /etc/cinder/cinder.conf DEFAULT use_syslog False
-crudini --set /etc/cinder/cinder.conf DEFAULT my_ip $cinderhost
+crudini --set /etc/cinder/cinder.conf DEFAULT my_ip $cindernodehost
 
 crudini --set /etc/cinder/cinder.conf DEFAULT transport_url rabbit://$brokeruser:$brokerpass@$messagebrokerhost:5672/$brokervhost 
 crudini --set /etc/cinder/cinder.conf DEFAULT rpc_backend rabbit
@@ -113,82 +130,94 @@ crudini --set /etc/cinder/cinder.conf DEFAULT rootwrap_config /etc/cinder/rootwr
 crudini --set /etc/cinder/cinder.conf DEFAULT default_volume_type $default_volume_type
 crudini --set /etc/cinder/cinder.conf DEFAULT glance_api_servers http://$glancehost:9292
 
+crudini --set /etc/cinder/cinder.conf DEFAULT enabled_backends ""
+
 #
 # The following section sets the possible cinder backends actually supported by this installer
 # By the moment, we can configure lvm, glusterfs and nfs
 #
+# Note that, because you can have multiple storage nodes with the same storage backends, our
+# installe appends to both the configs and backend names the IP of the host (variable
+# "cindernodehost") so you can have multiple lvm's, multiple nfs's and multiple glusterfs's
+# in your storage network.
+# Also, you can just not enable any storage backend in our installer if you prefer to manually
+# configure them later.
+#
 
-if [ $cinderconfiglvm == "yes" ]
+if [ $cindernodetype == "allinone" ] || [ $cindernodetype == "storage" ]
 then
-	crudini --set /etc/cinder/cinder.conf DEFAULT enabled_backends lvm
-	crudini --set /etc/cinder/cinder.conf lvm volume_group $cinderlvmname
-	crudini --set /etc/cinder/cinder.conf lvm volume_driver "cinder.volume.drivers.lvm.LVMVolumeDriver"
-	crudini --set /etc/cinder/cinder.conf lvm iscsi_protocol iscsi
-	crudini --set /etc/cinder/cinder.conf lvm iscsi_helper tgtadm
-	crudini --set /etc/cinder/cinder.conf lvm iscsi_ip_address $cinder_iscsi_ip_address
-	crudini --set /etc/cinder/cinder.conf lvm volume_backend_name LVM_iSCSI
-fi
+	if [ $cinderconfiglvm == "yes" ]
+	then
+		crudini --set /etc/cinder/cinder.conf DEFAULT enabled_backends lvm-$cindernodehost
+		crudini --set /etc/cinder/cinder.conf lvm-$cindernodehost volume_group $cinderlvmname
+		crudini --set /etc/cinder/cinder.conf lvm-$cindernodehost volume_driver "cinder.volume.drivers.lvm.LVMVolumeDriver"
+		crudini --set /etc/cinder/cinder.conf lvm-$cindernodehost iscsi_protocol iscsi
+		crudini --set /etc/cinder/cinder.conf lvm-$cindernodehost iscsi_helper tgtadm
+		crudini --set /etc/cinder/cinder.conf lvm-$cindernodehost iscsi_ip_address $cinder_iscsi_ip_address
+		crudini --set /etc/cinder/cinder.conf lvm-$cindernodehost volume_backend_name LVM_iSCSI-$cindernodehost
+	fi
 
-if [ $cinderconfigglusterfs == "yes" ]
-then
-	crudini --set /etc/cinder/cinder.conf glusterfs volume_driver "cinder.volume.drivers.glusterfs.GlusterfsDriver"
-	crudini --set /etc/cinder/cinder.conf glusterfs glusterfs_shares_config "/etc/cinder/glusterfs_shares"
-	crudini --set /etc/cinder/cinder.conf glusterfs glusterfs_mount_point_base "/var/lib/cinder/glusterfs"
-	crudini --set /etc/cinder/cinder.conf glusterfs nas_volume_prov_type thin
-	crudini --set /etc/cinder/cinder.conf glusterfs glusterfs_disk_util df
-	crudini --set /etc/cinder/cinder.conf glusterfs glusterfs_qcow2_volumes True
-	crudini --set /etc/cinder/cinder.conf glusterfs volume_backend_name GLUSTERFS
-	echo $glusterfsresource > /etc/cinder/glusterfs_shares
-	chown cinder.cinder /etc/cinder/glusterfs_shares
-fi
+	if [ $cinderconfigglusterfs == "yes" ]
+	then
+		crudini --set /etc/cinder/cinder.conf glusterfs-$cindernodehost volume_driver "cinder.volume.drivers.glusterfs.GlusterfsDriver"
+		crudini --set /etc/cinder/cinder.conf glusterfs-$cindernodehost glusterfs_shares_config "/etc/cinder/glusterfs_shares"
+		crudini --set /etc/cinder/cinder.conf glusterfs-$cindernodehost glusterfs_mount_point_base "/var/lib/cinder/glusterfs"
+		crudini --set /etc/cinder/cinder.conf glusterfs-$cindernodehost nas_volume_prov_type thin
+		crudini --set /etc/cinder/cinder.conf glusterfs-$cindernodehost glusterfs_disk_util df
+		crudini --set /etc/cinder/cinder.conf glusterfs-$cindernodehost glusterfs_qcow2_volumes True
+		crudini --set /etc/cinder/cinder.conf glusterfs-$cindernodehost volume_backend_name GLUSTERFS-$cindernodehost
+		echo $glusterfsresource > /etc/cinder/glusterfs_shares
+		chown cinder.cinder /etc/cinder/glusterfs_shares
+	fi
 
-if [ $cinderconfignfs == "yes" ]
-then
-	crudini --set /etc/cinder/cinder.conf nfs volume_driver "cinder.volume.drivers.nfs.NfsDriver"
-	crudini --set /etc/cinder/cinder.conf nfs nfs_shares_config "/etc/cinder/nfs_shares"
-	crudini --set /etc/cinder/cinder.conf nfs nfs_mount_point_base "/var/lib/cinder/nfs"
-	crudini --set /etc/cinder/cinder.conf nfs nsf_disk_util df
-	crudini --set /etc/cinder/cinder.conf nfs nfs_sparsed_volumes True
-	crudini --set /etc/cinder/cinder.conf nfs nfs_mount_options $nfs_mount_options
-	crudini --set /etc/cinder/cinder.conf nfs volume_backend_name NFS
-	echo $nfsresource > /etc/cinder/nfs_shares
-	chown cinder.cinder /etc/cinder/nfs_shares
-fi
+	if [ $cinderconfignfs == "yes" ]
+	then
+		crudini --set /etc/cinder/cinder.conf nfs-$cindernodehost volume_driver "cinder.volume.drivers.nfs.NfsDriver"
+		crudini --set /etc/cinder/cinder.conf nfs-$cindernodehost nfs_shares_config "/etc/cinder/nfs_shares"
+		crudini --set /etc/cinder/cinder.conf nfs-$cindernodehost nfs_mount_point_base "/var/lib/cinder/nfs"
+		crudini --set /etc/cinder/cinder.conf nfs-$cindernodehost nsf_disk_util df
+		crudini --set /etc/cinder/cinder.conf nfs-$cindernodehost nfs_sparsed_volumes True
+		crudini --set /etc/cinder/cinder.conf nfs-$cindernodehost nfs_mount_options $nfs_mount_options
+		crudini --set /etc/cinder/cinder.conf nfs-$cindernodehost volume_backend_name NFS-$cindernodehost
+		echo $nfsresource > /etc/cinder/nfs_shares
+		chown cinder.cinder /etc/cinder/nfs_shares
+	fi
 
-backend=""
-prevgluster=""
-
-crudini --set /etc/cinder/cinder.conf DEFAULT enabled_backends ""
-
-if [ $cinderconfiglvm == "yes" ]
-then
-	prevlvm="lvm"
-	backend="lvm"
-	seplvm=","
-else
-	seplvm=""
-	prevlvm=""
-fi
-
-if [ $cinderconfignfs == "yes" ]
-then
-	prevnfs="nfs"
-	sepnfs=","
-	backend="$prevlvm$seplvm$prevnfs"
-else
-	sepnfs=""
-	prenfs=""
-fi
-
-if [ $cinderconfigglusterfs == "yes" ]
-then
-	prevgluster="glusterfs"
-	backend="$prevlvm$seplvm$prevnfs$sepnfs$prevgluster"
-else
+	backend=""
 	prevgluster=""
-fi
 
-crudini --set /etc/cinder/cinder.conf DEFAULT enabled_backends "$backend"
+	crudini --set /etc/cinder/cinder.conf DEFAULT enabled_backends ""
+
+	if [ $cinderconfiglvm == "yes" ]
+	then
+		prevlvm="lvm-$cindernodehost"
+		backend="lvm-$cindernodehost"
+		seplvm=","
+	else
+		seplvm=""
+		prevlvm=""
+	fi
+
+	if [ $cinderconfignfs == "yes" ]
+	then
+		prevnfs="nfs-$cindernodehost"
+		sepnfs=","
+		backend="$prevlvm$seplvm$prevnfs"
+	else
+		sepnfs=""
+		prenfs=""
+	fi
+
+	if [ $cinderconfigglusterfs == "yes" ]
+	then
+		prevgluster="glusterfs-$cindernodehost"
+		backend="$prevlvm$seplvm$prevnfs$sepnfs$prevgluster"
+	else
+		prevgluster=""
+	fi
+
+	crudini --set /etc/cinder/cinder.conf DEFAULT enabled_backends "$backend"
+fi
  
 case $dbflavor in
 "mysql")
@@ -234,21 +263,26 @@ chown -R cinder.cinder /var/oslock/cinder
 mkdir -p /var/lib/cinder/volumes
 chown -R cinder.cinder /var/lib/cinder/volumes
 
-echo "default-driver iscsi" > /etc/tgt/targets.conf
-echo "include /etc/tgt/conf.d/cinder_tgt.conf" >> /etc/tgt/targets.conf
-echo "include /var/lib/cinder/volumes/*" > /etc/tgt/conf.d/cinder_tgt.conf
+#
+# Some iscsi configuration
+#
+
+if [ $cindernodetype == "allinone" ] || [ $cindernodetype == "storage" ]
+then
+	echo "default-driver iscsi" > /etc/tgt/targets.conf
+	echo "include /etc/tgt/conf.d/cinder_tgt.conf" >> /etc/tgt/targets.conf
+	echo "include /var/lib/cinder/volumes/*" > /etc/tgt/conf.d/cinder_tgt.conf
+	echo "include /etc/cinder/volumes/*" >> /etc/tgt/targets.conf
+fi
 
 #
 # We proceed to provision/update Cinder Database
 #
 
-su cinder -s /bin/sh -c "cinder-manage db sync"
-
-#
-# Some iscsi configuration
-#
-
-echo "include /etc/cinder/volumes/*" >> /etc/tgt/targets.conf
+if [ $cindernodetype == "allinone" ] || [ $cindernodetype == "controller" ]
+then
+	su cinder -s /bin/sh -c "cinder-manage db sync"
+fi
 
 echo ""
 echo "Cleaning UP App logs"
@@ -265,21 +299,38 @@ echo "Starting Cinder"
 # Then we proceed to start and enable Cinder Services and apply IPTABLES rules.
 #
 
-systemctl stop tgtd
-systemctl start tgtd
-systemctl enable tgtd
-systemctl start target
-systemctl enable target
-systemctl start iscsid.service
-systemctl enable iscsid.service
-systemctl start rpcbind.service
-systemctl enable rpcbind.service
-
 servicelist='
 	openstack-cinder-api
 	openstack-cinder-scheduler
 	openstack-cinder-volume	
 '
+
+for myservice in $servicelist
+do
+	systemctl stop $myservice
+	systemctl disable $myservice
+done
+
+case $cindernodetype in
+"allinone")
+	servicelist='
+		openstack-cinder-api
+		openstack-cinder-scheduler
+		openstack-cinder-volume	
+	'
+	;;
+"controller")
+	servicelist='
+		openstack-cinder-api
+		openstack-cinder-scheduler
+	'
+	;;
+"storage")
+	servicelist='
+		openstack-cinder-volume	
+	'
+	;;
+esac
 
 for myservice in $servicelist
 do
@@ -305,25 +356,33 @@ service iptables save
 # main installer stop further processing.
 #
 #
-# But before that, we setup our backend or backends
+# But before that, we setup our backend or backends for this specific nodes
 #
-
-if [ $cinderconfiglvm == "yes" ]
+if [ $cindernodetype == "allinone" ] || [ $cindernodetype == "storage" ]
 then
-	source $keystone_admin_rc_file
-	openstack volume type create --property volume_backend_name=LVM_iSCSI --description "LVM iSCSI Backend" lvm
-fi
+	if [ $cinderconfiglvm == "yes" ]
+	then
+		source $keystone_admin_rc_file
+		openstack volume type create \
+			--property volume_backend_name=LVM_iSCSI-$cindernodehost \
+			--description "LVM iSCSI Backend at node $cindernodehost" lvm-$cindernodehost
+	fi
 
-if [ $cinderconfigglusterfs == "yes" ]
-then
-	source $keystone_admin_rc_file
-	openstack volume type create --property volume_backend_name=GLUSTERFS --description "GlusterFS Backend" glusterfs
-fi
+	if [ $cinderconfigglusterfs == "yes" ]
+	then
+		source $keystone_admin_rc_file
+		openstack volume type create \
+			--property volume_backend_name=GLUSTERFS-$cindernodehost \
+			--description "GlusterFS Backend at node $cindernodehost" glusterfs-$cindernodehost
+	fi
 
-if [ $cinderconfignfs == "yes" ]
-then
-	source $keystone_admin_rc_file
-	openstack volume type create --property volume_backend_name=NFS --description "NFS V3 Backend" nfs
+	if [ $cinderconfignfs == "yes" ]
+	then
+		source $keystone_admin_rc_file
+		openstack volume type create \
+			--property volume_backend_name=NFS-$cindernodehost \
+			--description "NFS V3 Backend at node $cindernodehost" nfs-$cindernodehost
+	fi
 fi
 
 
@@ -337,6 +396,7 @@ then
 else
 	date > /etc/openstack-control-script-config/cinder-installed
 	date > /etc/openstack-control-script-config/cinder
+	echo $cindernodetype > /etc/openstack-control-script-config/cinder-nodetype
 fi
 
 echo "Ready"

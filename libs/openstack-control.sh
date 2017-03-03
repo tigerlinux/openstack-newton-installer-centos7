@@ -58,13 +58,34 @@ openstack-glance-api
 )
 
 # Cinder. Index=3
-svccinder=(
-"
-openstack-cinder-api
-openstack-cinder-scheduler
-openstack-cinder-volume
-"
-)
+cindernodetype=`cat /etc/openstack-control-script-config/cinder-nodetype`
+case $cindernodetype in
+"allinone")
+	svccinder=(
+	"
+	openstack-cinder-api
+	openstack-cinder-scheduler
+	openstack-cinder-volume
+	"
+	)
+	;;
+"controller")
+	svccinder=(
+	"
+	openstack-cinder-api
+	openstack-cinder-scheduler
+	"
+	)
+	;;
+"storage")
+	svccinder=(
+	"
+	openstack-cinder-volume
+	"
+	)
+	;;
+esac
+
 
 # Neutron. Index=4
 if [ -f /etc/openstack-control-script-config/neutron-full-installed ]
