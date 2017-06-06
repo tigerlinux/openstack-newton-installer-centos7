@@ -1,3 +1,11 @@
+1.1.1.el7 - June 06, 2017
+
+- Added extra code in database installation. This
+  new code ensure proper file descriptor settings
+  for mariadb.
+- Added missing services on cinder installation
+  module.
+
 1.1.0.el7 - March 3, 2017
 
 - Major changes on cinder install module. Added the needed

@@ -314,6 +314,10 @@ done
 case $cindernodetype in
 "allinone")
 	servicelist='
+		tgtd
+		target
+		iscsid
+		rpcbind
 		openstack-cinder-api
 		openstack-cinder-scheduler
 		openstack-cinder-volume	
@@ -327,6 +331,10 @@ case $cindernodetype in
 	;;
 "storage")
 	servicelist='
+		tgtd
+		target
+		iscsid
+		rpcbind
 		openstack-cinder-volume	
 	'
 	;;
